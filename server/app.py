@@ -1,8 +1,8 @@
 from flask import Flask, jsonify, request
 from flask_cors import CORS
 from flask_pymongo import PyMongo
+from uuid import uuid4, UUID
 import os
-import random
 
 app = Flask(__name__)
 CORS(app)
