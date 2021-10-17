@@ -1,0 +1,38 @@
+body {
+	background-color: rgb(5, 42, 63);
+	color: rgb(184, 208, 223);
+}
+
+div {
+	width: fit-content;
+	position: absolute;
+	top: 50vh;
+	left: 50vw;
+	transform: translate(-50%, -50%);
+	text-align: center;
+}
+
+h1 {
+	font-size: 3em;
+	text-shadow: 0 0 2px black;
+}
+
+hr {
+	margin: 4vh;
+}
+
+#list {
+	padding-top: 2vh;
+	list-style-type: none;
+}
+
+a {
+	color: rgb(111, 131, 143);
+	text-decoration: none;
+	transition: all 0.3s ease-out;
+}
+
+a:hover {
+	color: inherit;
+	font-style: italic;
+}
