@@ -1,3 +1,9 @@
+* {
+	box-sizing: border-box;
+	margin: 0;
+	padding: 0;
+}
+
 body {
 	background-color: rgb(5, 42, 63);
 	color: rgb(184, 208, 223);
@@ -18,7 +24,7 @@ h1 {
 }
 
 hr {
-	margin: 4vh;
+	margin: 3vh;
 }
 
 #list {
