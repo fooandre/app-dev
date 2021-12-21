@@ -9,3 +9,6 @@ CORS(app)
 
 app.config["MONGO_URI"] = os.getenv("MONGO_URI")
 mongo = PyMongo(app)
+
+product_collection = mongo.db.product
+
