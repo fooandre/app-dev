@@ -1,6 +1,13 @@
+import {Route, Routes} from 'react-router-dom';
+import Main from './Client/Main';
+import CreateProduct from './Admin/createProduct';
+
 const App = () => {
   return (
-    <nav className="navbar navbar-expand-lg bg-dark navbar-dark">asd</nav>
+      <Routes>
+        <Route exact path="/" element={<Main/>} />
+        <Route exact path="/addProduct" element={<CreateProduct/>} />
+      </Routes>
   )
 }
 
