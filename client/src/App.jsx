@@ -1,6 +1,6 @@
 const App = () => {
   return (
-    <nav className="navbar navbar-expand-lg bg-dark navbar-dark">asd</nav>
+    <div>test</div>
   )
 }
 
