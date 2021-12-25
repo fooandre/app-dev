@@ -1,6 +1,10 @@
+import Sidebar from './components/Sidebar'
+
 const App = () => {
   return (
-    <div>test</div>
+    <div>
+      <Sidebar />
+    </div>
   )
 }
 
