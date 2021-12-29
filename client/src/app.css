@@ -30,18 +30,15 @@ li {
 
 a {
     text-decoration: none;
+    color: inherit;
+}
+
+main {
+    padding: 2vw;
+    margin-left: 5vw;
 }
 
 /* Liked */
-
-.background {
-    position: absolute;
-    height: 100vh;
-    width: 100vw;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
 
 #liked {
     background-color: #3f4248;
@@ -49,7 +46,7 @@ a {
     color: white;
     height: 80vh;
     width: 80vw;
-    position: absolute;
+    position: fixed;
     top: 50vh;
     left: 50vw;
     display: flex;
@@ -59,9 +56,11 @@ a {
     margin-left: 5vw;
     padding: 2vh 2vw;
     transform: translate(-50%, -50%);
+    opacity: 1;
 }
 
 #liked span {
+    width: 100%;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -78,24 +77,15 @@ a {
     cursor: pointer;
 }
 
-#liked .products {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    flex-wrap: wrap;
-}
-
 #liked figure:hover {
     background-color: #797979;
 }
 
-#liked .hide {
-    opacity: 0;
-}
-
-#liked .hide:hover,
-#liked .hide:focus {
-    cursor: default;
+.background {
+    position: fixed;
+    height: 100vh;
+    width: 100vw;
+    z-index: -10;
 }
 
 /* Sidebar */
@@ -104,9 +94,10 @@ navbar {
     background-color: #3f4248;
     height: 100vh;
     width: 5vw;
-    position: absolute;
+    position: fixed;
     display: flex;
     flex-direction: column;
+    z-index: 10;
 }
 
 navbar a {
@@ -153,16 +144,18 @@ header a {
 /* Footer */
 
 footer {
+    background-color: #fff;
     font-size: 1rem;
     font-weight: 100;
     position: fixed;
-    height: 5vh;
     width: 100vw;
     bottom: 0;
     display: flex;
     align-items: center;
     justify-content: center;
-    margin: 2vh 0 0 5vw;
+    padding: 2vh 0;
+    margin-left: 5vw;
+    z-index: 10;
 }
 
 /* Button */
@@ -254,15 +247,17 @@ figure:hover img {
 
 #categories {
     background-color: #fafafa;
+    color: #5676c9;
     display: flex;
     align-items: center;
     justify-content: space-between;
     padding: 1vh 25vw;
+    margin-bottom: 2vh;
 }
 
 #categories figure {
     border-radius: 10px;
-    width: fit-content;
+    width: max-content;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -287,4 +282,22 @@ figure:hover img {
 #categories figure:hover figcaption {
     color: #5676c9;
     font-weight: 900;
+}
+
+/* Products */
+
+.products {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+}
+
+.hide {
+    opacity: 0;
+}
+
+.hide:hover,
+.hide:focus {
+    cursor: default;
 }

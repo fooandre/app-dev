@@ -14,11 +14,24 @@ import User from "./routes/User";
 const rootElement = document.getElementById("root");
 import './app.css'
 
+const search = query => console.log(query);
+
+window.onload = document.addEventListener('keypress', e => {	
+	const searchbar = document.getElementById("searchbar");
+	
+	if (e.key == "/") {
+		e.preventDefault()
+		searchbar.focus();
+	}
+	
+	if (e.key == "Enter") search(searchbar.value)
+})
+
 render(
   	<BrowserRouter>
 		<AppSidebar />
 		<AppHeader />
-		<main style={{marginLeft: '5vw'}}>
+		<main>
 			<Routes>
 				<Route path="/" element={<Shop />} />
 				<Route path="/shop" element={<Shop />} />

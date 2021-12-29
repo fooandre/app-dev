@@ -11,7 +11,7 @@ const AppCategories = () => {
     let content = [];
 
     for (const category in categories) {
-        content.push(<Link to="/search">
+        content.push(<Link key={category} to="/search">
                         <figure>
                             <img src={categories[category]} />
                             <figcaption>{category}</figcaption>

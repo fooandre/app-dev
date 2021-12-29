@@ -43,10 +43,12 @@ const Sidebar = () => {
         },
     ]
     
-    let [ showLiked, toggleLiked ] = useState(false)
+    let [ showLiked, toggleLiked ] = useState(true)
+
+    console.log(showLiked)
 
     let [ content, updateContent ] = useState([]);
-    
+
     const icons = {
         "Shop": <HomeIcon />,
         "User": <UserCircleIcon />,
@@ -76,7 +78,7 @@ const Sidebar = () => {
 
     if (showLiked) return (
         <>
-            <AppLiked closeLiked={() => toggleLiked(showLiked = false)} products={testProducts} />
+            <AppLiked close={() => toggleLiked(showLiked = false)} products={testProducts} />
             <navbar>{ content }</navbar>
         </>
     )
