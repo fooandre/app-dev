@@ -34,43 +34,13 @@ a {
 }
 
 main {
-    padding: 2vw;
+    padding: 0 2vw;
+    min-height: 87vh;
+    height: fit-content;
     margin-left: 5vw;
 }
 
 /* Liked */
-
-#liked {
-    background-color: #3f4248;
-    border-radius: 5px;
-    color: white;
-    height: 80vh;
-    width: 80vw;
-    position: fixed;
-    top: 50vh;
-    left: 50vw;
-    display: flex;
-    flex-direction: column;
-    align-items: space-between;
-    justify-content: center;
-    margin-left: 5vw;
-    padding: 2vh 2vw;
-    transform: translate(-50%, -50%);
-    opacity: 1;
-}
-
-#liked span {
-    width: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 2vh;
-    padding: 0 1vw;
-}
-
-#liked svg {
-    height: 3vh;
-}
 
 #liked svg:hover {
     color: #afafaf;
@@ -81,81 +51,16 @@ main {
     background-color: #797979;
 }
 
-.background {
-    position: fixed;
-    height: 100vh;
-    width: 100vw;
-    z-index: -10;
-}
-
 /* Sidebar */
-
-navbar {
-    background-color: #3f4248;
-    height: 100vh;
-    width: 5vw;
-    position: fixed;
-    display: flex;
-    flex-direction: column;
-    z-index: 10;
-}
-
-navbar a {
-    border-radius: 10px;
-    height: 5vw;
-    width: 5vw;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
 
 navbar a:hover {
     background-color: #5f6166;
     cursor: pointer;
 }
 
-navbar svg {
-    color: white;
-    height: 3vh;
-}
-
 navbar a:hover + dialog {
     opacity: 1;
-    transition-delay: 1s;
-}
-
-/* Header */
-
-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-left: 5vw;
-    padding: 2.5vh 2.5vw;
-}
-
-header a {
-    color: #000;
-    font-weight: bold;
-    font-size: 2rem;
-    text-decoration: none;
-}
-
-/* Footer */
-
-footer {
-    background-color: #fff;
-    font-size: 1rem;
-    font-weight: 100;
-    position: fixed;
-    width: 100vw;
-    bottom: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 2vh 0;
-    margin-left: 5vw;
-    z-index: 10;
+    /* transition-delay: 1s; */
 }
 
 /* Button */
@@ -176,24 +81,6 @@ button:hover {
     cursor: pointer;
 }
 
-/* Tooltip */
-
-dialog {
-    background-color: rgb(210, 251, 255);
-    border: none;
-    border-radius: 10px;
-    box-shadow: black 1px 1px 2px 0;
-    font-size: 0.75rem;
-    position: absolute;
-    left: 4vw;
-    transform: translateY(-200%);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 1vh 1vw;
-    opacity: 0;
-}
-
 /* Input */
 
 input {
@@ -201,10 +88,6 @@ input {
     border-radius: 1rem;
     font-size: 0.75rem;
     padding: 1vh 1vw;
-}
-
-#searchbar {
-    width: 20vw;
 }
 
 #searchbar:focus,
@@ -215,28 +98,9 @@ input {
 
 /* Product */
 
-figure {
-    border-radius: 5px;
-    width: fit-content;
-    padding: 1vh 1vw;
-}
-
 figure:hover {
     background-color: #f3f3f3;
     cursor: pointer;
-}
-
-figure figcaption {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 1vh;
-}
-
-figure img {
-    border-radius: 5px;
-    width: 15vw;
-    height: 15vw;
 }
 
 figure:hover img {
@@ -245,59 +109,15 @@ figure:hover img {
 
 /* Categories */
 
-#categories {
-    background-color: #fafafa;
-    color: #5676c9;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 1vh 25vw;
-    margin-bottom: 2vh;
-}
-
-#categories figure {
-    border-radius: 10px;
-    width: max-content;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: space-between;
-}
-
-#categories img {
-    height: 5vh;
-    width: fit-content;
-    object-fit: contain;
-    margin-bottom: 1vh;
-}
-
 #categories figure:hover img {
     box-shadow: none;
 }
 
-#categories figcaption {
-    color: black;
-}
-
 #categories figure:hover figcaption {
     color: #5676c9;
-    font-weight: 900;
+    font-weight: 700;
 }
 
-/* Products */
-
-.products {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    flex-wrap: wrap;
-}
-
-.hide {
-    opacity: 0;
-}
-
-.hide:hover,
-.hide:focus {
-    cursor: default;
+.hide:hover {
+    cursor: pointer;
 }

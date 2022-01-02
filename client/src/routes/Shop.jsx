@@ -1,82 +1,18 @@
+import { array } from 'prop-types'
 import AppCategories from '../components/AppCategories'
 import AppProducts from '../components/AppProducts'
 
-const Shop = () => {
-    const testProducts = [
-        {
-            '_id': '64830',
-            'name': 'Name',
-            'price': 12,
-            'image': '../../static/Test.jpeg'
-        },
-        {
-            '_id': '64831',
-            'name': 'Name',
-            'price': 12,
-            'image': '../../static/Test.jpeg'
-        },
-        {
-            '_id': '64832',
-            'name': 'Name',
-            'price': 12,
-            'image': '../../static/Test.jpeg'
-        },
-        {
-            '_id': '64833',
-            'name': 'Name',
-            'price': 12,
-            'image': '../../static/Test.jpeg'
-        },
-        {
-            '_id': '64834',
-            'name': 'Name',
-            'price': 12,
-            'image': '../../static/Test.jpeg'
-        },
-        {
-            '_id': '64835',
-            'name': 'Name',
-            'price': 12,
-            'image': '../../static/Test.jpeg'
-        },
-        {
-            '_id': '64836',
-            'name': 'Name',
-            'price': 12,
-            'image': '../../static/Test.jpeg'
-        },
-        {
-            '_id': '64837',
-            'name': 'Name',
-            'price': 12,
-            'image': '../../static/Test.jpeg'
-        },
-        {
-            '_id': '64838',
-            'name': 'Name',
-            'price': 12,
-            'image': '../../static/Test.jpeg'
-        },
-        {
-            '_id': '64839',
-            'name': 'Name',
-            'price': 12,
-            'image': '../../static/Test.jpeg'
-        },
-        {
-            '_id': '64840',
-            'name': 'Name',
-            'price': 12,
-            'image': '../../static/Test.jpeg'
-        },
-    ]
-
+const Shop = ({ products }) => {
     return (
-        <section>
-            <AppCategories />
-            <AppProducts products={testProducts} rowLength={5} />
-        </section>
+        <>
+            <AppCategories showIcons={true} />
+            <AppProducts products={products} rowLength={5} />
+        </>
     )
+}
+
+Shop.propTypes = {
+    products: array.isRequired
 }
 
 export default Shop
