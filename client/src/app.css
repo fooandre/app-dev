@@ -1,0 +1,119 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,300;0,700;1,100&display=swap');
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Montserrat', sans-serif;
+    transition: all 0.3s ease-out;
+}
+
+h1 {
+    font-size: 2rem;
+}
+
+h2 {
+    font-size: 1.5rem;
+}
+
+h3 {
+    font-size: 1rem;
+}
+
+h4 {
+    font-size: 0.75rem;
+}
+
+li {
+    list-style: none;
+}
+
+a {
+    text-decoration: none;
+    color: inherit;
+}
+
+main {
+    padding: 0 2vw;
+    min-height: 87vh;
+    height: fit-content;
+    margin-left: 5vw;
+}
+
+/* Liked */
+
+#liked svg:hover {
+    color: #afafaf;
+    cursor: pointer;
+}
+
+#liked figure:hover {
+    background-color: #797979;
+}
+
+/* Sidebar */
+
+navbar a:hover {
+    background-color: #5f6166;
+    cursor: pointer;
+}
+
+navbar a:hover + dialog {
+    opacity: 1;
+    /* transition-delay: 1s; */
+}
+
+/* Button */
+
+button {
+    border: 1px solid #6c7386;
+    border-radius: 5px;
+    background-color: rgba(0, 0, 0, 0);
+    box-shadow: 0 0 rgba(0, 0, 0, 0);
+    font-size: 1rem;
+    padding: 1vh 1vw;
+}
+
+button:hover {
+    box-shadow: 1px 1px 1px #6c7386;
+    background-color: #6c7386;
+    color: #fff;
+    cursor: pointer;
+}
+
+/* Input */
+
+input {
+    border: 1px solid black;
+    border-radius: 1rem;
+    font-size: 0.75rem;
+    padding: 1vh 1vw;
+}
+
+#searchbar:focus,
+#searchbar:hover {
+    background-color: #f5f5f5;
+    box-shadow: 1px 1px 1px black;
+}
+
+/* Product */
+
+figure:hover {
+    background-color: #f3f3f3;
+    cursor: pointer;
+}
+
+figure:hover img {
+    box-shadow: 0 0 2px black;
+}
+
+/* Categories */
+
+#categories figure:hover img {
+    box-shadow: none;
+}
+
+#categories figure:hover figcaption {
+    color: #5676c9;
+    font-weight: 700;
+}
