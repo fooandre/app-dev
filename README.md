@@ -2,14 +2,16 @@
 
 ## Tech Stack
 
-| Client                  |
-| ----------------------- |
-| Vue (with _Typescript_) |
-| Vuex                    |
-| Tailwind CSS            |
-| Headless UI             |
+| Client       |
+| ------------ |
+| React (Vite) |
+| ReactRouter  |
+| HeroIcons    |
+| Eslint       |
+| Prettier     |
 
-| Server  |
-| ------- |
-| Flask   |
-| MongoDB |
+| Server      |
+| ----------- |
+| Flask       |
+| MongoDB     |
+| MongoEngine |
