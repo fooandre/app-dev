@@ -1,9 +1,11 @@
-from configparser import Error
-from flask import jsonify, request, redirect, url_for,session
-from nachD.models import Products_Order,Product,User,Order,Status
-import mongoengine
+import datetime
 import traceback
+from configparser import Error
+
+import mongoengine
+from flask import jsonify, redirect, request, session, url_for
 from nachD import app
+from nachD.models import Order, Product, Products_Order, Status, User
 
 
 class NotEnufQuatityError(Exception):
@@ -12,16 +14,15 @@ class NotEnufQuatityError(Exception):
 
 def check_product_quantity(purchased_products):
 	for ordered_product in purchased_products:
+		print(ordered_product["id"])
 		prod = Product.objects(id=ordered_product["id"]).get()
 	# check first whether enough quantity of stock 
-		print(prod["qty"], ordered_product["qty"])
 		if not prod["qty"] >= ordered_product["qty"]:
 			raise NotEnufQuatityError("One of the product do not have enough stock for the order placed.")
 
 def place_new_order(purchased_products, purchaserId): # list of purchased_products
 	check_product_quantity(purchased_products)
 	ord = Order()
-	
 	merchants = []
 
 	user = User.objects(id=purchaserId).get()
@@ -67,7 +68,6 @@ def get_one_order(order_id, userId):
 	for order in ord.products:
 		print(order)
 		# check if the product still exist as it might have been deleted. If product exist means uer exist, due to cascade in product.
-		# product_exist = order.product if order.product else None
 		if isMerchant:
 			if not str(order.merchant) == userId:
 				continue
@@ -85,7 +85,7 @@ def get_one_order(order_id, userId):
 				"qty":order.qty,
 				"status":order.status.value,
 				"img":order.product["img"],
-				"date_ordered":order.date_ordered,
+				"date_ordered":datetime.datetime.strftime(order.date_ordered, "%d/%m/%Y"),
 				"user":{
 						"user":str(order.product["user"]["id"]), 
 						"username":order.product["user"]["username"]
@@ -103,12 +103,12 @@ def update_order_status(data, order_id, userId):
 			if data["status"] == Status.COMPLETED.value:
 				order.status=Status.COMPLETED.value
 				order.completed=True
-				ord.save()
+				order.save()
 				updated_orders["order"] = order
 				break # because we only update one order's product's status per time
 			else:
 				order.status=data["status"]
-				ord.save()
+				order.save()
 				updated_orders["order"] = order
 				break
 

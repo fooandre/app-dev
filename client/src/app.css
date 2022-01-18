@@ -5,6 +5,7 @@
     padding: 0;
     box-sizing: border-box;
     font-family: 'Montserrat', sans-serif;
+    overflow-x: hidden;
     transition: all 0.3s ease-out;
 }
 
@@ -40,6 +41,45 @@ main {
     margin-left: 5vw;
 }
 
+/* Button */
+
+button {
+    border: 1px solid #6c7386;
+    border-radius: 5px;
+    background-color: rgba(0, 0, 0, 0);
+    box-shadow: 0 0 rgba(0, 0, 0, 0);
+    font-size: 1rem;
+    padding: 1vh 1vw;
+}
+
+button:hover {
+    box-shadow: 1px 1px 1px #6c7386;
+    background-color: #6c7386;
+    color: #fff;
+    cursor: pointer;
+    font-weight: 700;
+}
+
+button:active {
+    box-shadow: inset 1px 1px 2px black;
+}
+
+/* Input */
+
+input {
+    border: 1px solid black;
+    border-radius: 10vmin;
+    font-size: 0.9rem;
+    padding: 1vh 1vw;
+}
+
+input:focus,
+input:hover {
+    background-color: #f5f5f5;
+    box-shadow: 0 1px 2px #3f4248;
+    outline: none;
+}
+
 /* Liked */
 
 #liked svg:hover {
@@ -58,42 +98,26 @@ navbar a:hover {
     cursor: pointer;
 }
 
+navbar a + dialog {
+    background-color: rgb(210, 251, 255);
+    border: none;
+    border-radius: 10px;
+    box-shadow: black 1px 1px 2px 0;
+    font-size: 0.75rem;
+    position: absolute;
+    left: 4vw;
+    transform: translateY(-200%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1vh 1vw;
+    opacity: 0;
+    cursor: default;
+}
+
 navbar a:hover + dialog {
     opacity: 1;
-    /* transition-delay: 1s; */
-}
-
-/* Button */
-
-button {
-    border: 1px solid #6c7386;
-    border-radius: 5px;
-    background-color: rgba(0, 0, 0, 0);
-    box-shadow: 0 0 rgba(0, 0, 0, 0);
-    font-size: 1rem;
-    padding: 1vh 1vw;
-}
-
-button:hover {
-    box-shadow: 1px 1px 1px #6c7386;
-    background-color: #6c7386;
-    color: #fff;
-    cursor: pointer;
-}
-
-/* Input */
-
-input {
-    border: 1px solid black;
-    border-radius: 1rem;
-    font-size: 0.75rem;
-    padding: 1vh 1vw;
-}
-
-#searchbar:focus,
-#searchbar:hover {
-    background-color: #f5f5f5;
-    box-shadow: 1px 1px 1px black;
+    transition-delay: 1s;
 }
 
 /* Product */
@@ -107,6 +131,16 @@ figure:hover img {
     box-shadow: 0 0 2px black;
 }
 
+#heart:hover {
+    fill: red;
+    cursor: pointer;
+}
+
+#heart:active {
+    box-shadow: inset 1px 1px 2px black;
+    outline-color: red;
+}
+
 /* Categories */
 
 #categories figure:hover img {
@@ -116,4 +150,10 @@ figure:hover img {
 #categories figure:hover figcaption {
     color: #5676c9;
     font-weight: 700;
+}
+
+/* Login */
+
+#switch:hover {
+    text-decoration: underline;
 }

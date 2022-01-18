@@ -1,8 +1,10 @@
-import { XCircleIcon } from '@heroicons/react/outline'
-import AppProducts from './AppProducts'
+import { XCircleIcon } from '@heroicons/react/outline';
+import AppGrid from '../components/AppGrid';
+import BaseProduct from '../components/BaseProduct';
 
 const likedStyles = {
     backgroundColor: '#3f4248',
+    border: 'none',
     borderRadius: '5px',
     color: 'white',
     height: '80vh',
@@ -12,9 +14,8 @@ const likedStyles = {
     left: '50vw',
     display: 'flex',
     flexDirection: 'column',
-    alignItems: 'space-between',
     justifyContent: 'flex-start',
-    gap: '2vh',
+    gap: '3vh',
     marginLeft: '5vw',
     padding: '5vh 2vw',
     transform: 'translate(-50%, -50%)',
@@ -35,6 +36,7 @@ const svgStyles = {
 }
 
 const backgroundStyles = {
+    backgroundColor: 'rgba(0, 0, 0, 0.6)',
     position: 'fixed',
     height: '100vh',
     width: '95vw',
@@ -42,6 +44,13 @@ const backgroundStyles = {
 }
 
 const AppLiked = ({ close, products }) => {
+    let content = [];
+
+    for (const product of products) {
+        if (content.length >= products.length && content.length % rowLength == 0) break;
+        content.push(<BaseProduct key={product._id} product={product} />);
+    };
+
     return (
         <>
             <dialog id="liked" style={likedStyles}>
@@ -50,7 +59,7 @@ const AppLiked = ({ close, products }) => {
                     <XCircleIcon onClick={close} style={svgStyles} />
                 </span>
                 
-                <AppProducts products={products} rowLength={4} />
+                <AppGrid rowLength={4}>{ content }</AppGrid>
             </dialog>
 
             <div onClick={close} style={backgroundStyles} />

@@ -4,7 +4,11 @@
         "heroicons",
         "prettierrc",
         "searchbar",
+        "signup",
         "vite",
         "vitejs"
-    ]
+    ],
+    "workbench.colorCustomizations": {
+        "titleBar.activeBackground": "#618f16"
+    }
 }
