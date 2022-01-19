@@ -69,10 +69,17 @@ const Auth = () => {
                 email: document.getElementById("email").value,
                 password: document.getElementById("password").value,
                 address: document.getElementById("address").value,
+<<<<<<< HEAD
                 phone_number: document.getElementById("number").value
             };
     
             const res = await fetch('api/signup', {
+=======
+                phoneNumber: document.getElementById("number").value
+            };
+    
+            const res = await fetch('http://127.0.0.1:5000/signup', {
+>>>>>>> cca0a9bb4dc2b6fc0ebc658ca0c4c5aae22478a6
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify(body)

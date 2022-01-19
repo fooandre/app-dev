@@ -1,7 +1,9 @@
 import { bool, object } from 'prop-types';
 import { Outlet } from 'react-router-dom';
-import AppSidebar from '../components/AppSidebar';
 import AppHeader from '../components/AppHeader';
+import AppSidebar from '../components/AppSidebar';
+
+
 
 
 const App = ({ loggedIn, user }) => {
