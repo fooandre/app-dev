@@ -1,8 +1,9 @@
-import { array } from 'prop-types'
-import { useState } from 'react'
-import { useParams } from "react-router-dom"
-import AppCategories from '../components/AppCategories'
-import BaseReview from '../components/BaseReview'
+import { HeartIcon } from '@heroicons/react/outline';
+import { array, bool } from 'prop-types';
+import { useState } from 'react';
+import { useParams } from "react-router-dom";
+import AppCategories from '../components/AppCategories';
+import BaseReview from '../components/ProductReview';
 
 const productStyles = {
     position: 'relative',
@@ -50,10 +51,6 @@ const h3Styles = {
     fontWeight: '100'
 }
 
-const leftH3Styles = {
-    fontStyle: 'italic'
-}
-
 const descH3Styles = {
     maxWidth: 'inherit'
 }
@@ -76,14 +73,33 @@ const infoStyles = {
     gap: '3vh'
 }
 
-const addToCartStyles = {
-    backgroundColor: 'red',
-    color: 'white',
+const callToActionStyles = {
     position: 'absolute',
     top: '8vh',
     right: '0',
+    display: 'flex',
+    alignItems: 'center',
+    gap: '1vw'
+}
+
+const heartStyles = {
+    borderRadius: '5px',
+    color:'red',
+    height:'4vh',
+    outline: '1px solid black',
+    padding: '1vh'
+}
+
+const addToCartStyles = {
+    backgroundColor: 'red',
+    color: 'white',
     fontSize: '0.75rem',
     fontWeight: '700'
+}
+
+const disabledStyles = {
+    backgroundColor: 'gray',
+    pointerEvents: 'none'
 }
 
 const spanStyles = {
@@ -107,9 +123,12 @@ const hrStyles = {
 }
 
 
-const Product = ({ products }) => {
+const Product = ({ loggedIn, likedItems, products }) => {
     const product = products.filter(product => product._id == useParams().productId)[0];
-    const { name, price, user: { _id: id, username }, category, desc, qty, image, reviews } = product;
+    const { _id: id, name, price, user: { username }, category, desc, qty, image, reviews } = product;
+    
+    // let liked = likedItems.map(({ _id: id }) => id).includes(productId);
+    let [ liked, toggleLiked ] = useState(false);
 
     let productReviews = [];
 
@@ -129,8 +148,7 @@ const Product = ({ products }) => {
                 <section style={{...sectionStyles, ...leftStyles}}>
                     <img src={image} style={imgStyles} />
                     <title style={titleStyles}>
-                        <h2>{ username }</h2>
-                        <h3 style={leftH3Styles}>@{ id }</h3>
+                        <h2 style={{textTransform:'capitalize'}}>{ username }</h2>
                     </title>
                 </section>
 
@@ -141,7 +159,10 @@ const Product = ({ products }) => {
                             <h3 style={h3Styles}>${ price }</h3>
                         </title>
 
-                        <button id="addToCart" style={addToCartStyles}>Add to Cart</button>
+                        <span style={callToActionStyles}>
+                            <HeartIcon onClick={() => toggleLiked(!liked)} id="heart" style={!loggedIn? {display:'none'} : liked? {...heartStyles, fill:'red'} : heartStyles} />
+                            <button id="addToCart" style={loggedIn? addToCartStyles : {...addToCartStyles, ...disabledStyles}}>Add to Cart</button> 
+                        </span>
 
                         <span style={spanStyles}>
                             <h2>Category</h2>
@@ -166,7 +187,13 @@ const Product = ({ products }) => {
 }
 
 Product.propTypes = { 
+    loggedIn: bool.isRequired,
+    likedItems: array.isRequired,
     products: array.isRequired
+}
+
+Product.defaultProps = {
+    loggedIn: false
 }
 
 export default Product

@@ -1,15 +1,15 @@
 import { bool, object } from 'prop-types';
-import { Outlet } from 'react-router-dom'
+import { Outlet } from 'react-router-dom';
+import AppSidebar from '../components/AppSidebar';
+import AppHeader from '../components/AppHeader';
 
-import AppSidebar from '../components/AppSidebar'
-import AppHeader from '../components/AppHeader'
 
 const App = ({ loggedIn, user }) => {
     return (
         <>
-            <AppSidebar user={user} />
+            <AppSidebar loggedIn={loggedIn} user={user} />
             <AppHeader loggedIn={loggedIn} />
-            <main><Outlet /></main>
+            <main style={{paddingBottom:'1vh'}}><Outlet /></main>
         </>
     )
 }

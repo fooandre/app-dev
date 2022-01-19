@@ -1,5 +1,5 @@
 import { bool } from 'prop-types';
-import { Link } from 'react-router-dom'
+import { Link } from 'react-router-dom';
 
 const categoriesStyles = {
     backgroundColor: '#fafafa',
@@ -19,7 +19,8 @@ const figureStyles = {
     flexDirection: 'column',
     alignItems: 'center',
     justifyContent: 'space-between',
-    gap: '1vh'
+    gap: '1vh',
+    overflow: 'visible'
 }
 
 const imgStyles = {

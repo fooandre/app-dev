@@ -1,8 +1,10 @@
+import UserCart from '../components/UserCart';
+
 const User = () => {
     return (
-        <div>
-            User
-        </div>
+        <>
+            <UserCart />
+        </>
     )
 }
 

@@ -1,5 +1,5 @@
 import { bool } from 'prop-types';
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom';
 
 const headerStyles = {
     height: '7vh',
@@ -22,11 +22,21 @@ const searchbarStyles = {
 }
 
 const AppHeader = ({ loggedIn }) => {
+    const navigate = useNavigate();
+
+    const login = () => navigate('/auth');
+
+    const logout = () => {
+        localStorage.clear();
+        document.cookie = "loggedIn=false;path=/;";
+        window.location.reload();
+    };
+
     return (
         <header style={headerStyles}>
             <Link style={aStyles} to="/">NACHD</Link>
-            <input style={searchbarStyles} id="searchbar" type="text" placeholder="press &quot;/&quot; to focus" />
-            <button>{ loggedIn? "Cart" : "Login" }</button>
+            <input style={searchbarStyles} id="searchbar" type="text" placeholder="Press &quot;/&quot; to focus" />
+            <button onClick={loggedIn? logout : login}>{ loggedIn? "Logout" : "Login" }</button>
         </header>
     )
 }

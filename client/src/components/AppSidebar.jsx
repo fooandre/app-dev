@@ -1,8 +1,8 @@
-import { object } from 'prop-types'
-import { useState } from 'react'
-import { HomeIcon, UserCircleIcon, HeartIcon, KeyIcon } from '@heroicons/react/outline'
-import { Link } from 'react-router-dom'
-import AppLiked from './AppLiked'
+import { HeartIcon, HomeIcon, KeyIcon, UserCircleIcon } from '@heroicons/react/outline';
+import { bool, object } from 'prop-types';
+import { useState } from 'react';
+import { Link } from 'react-router-dom';
+import AppLiked from './AppLiked';
 
 const navbarStyles = {
     backgroundColor: '#3f4248',
@@ -28,34 +28,18 @@ const svgStyles = {
     height: '3vh'
 }
 
-const dialogStyles = {
-    backgroundColor: 'rgb(210, 251, 255)',
-    border: 'none',
-    borderRadius: '10px',
-    boxShadow: 'black 1px 1px 2px 0',
-    fontSize: '0.75rem',
-    position: 'absolute',
-    left: '4vw',
-    transform: 'translateY(-200%)',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: '1vh 1vw',
-    opacity: '0'
-}
-
-const AppSidebar = ({ user }) => {
+const AppSidebar = ({ loggedIn, user }) => {
     const { liked } = user;
     
     let [ showLiked, toggleLiked ] = useState(false);
     
     let icons = {
-        "": <HomeIcon style={svgStyles} />,
+        "Shop": <HomeIcon style={svgStyles} />,
         "User": <UserCircleIcon style={svgStyles} />,
         "Liked": <HeartIcon style={svgStyles} />,
         "Admin": <KeyIcon style={svgStyles} />
     }
-    
+
     let content = [];
 
     for (const icon in icons) {
@@ -64,14 +48,16 @@ const AppSidebar = ({ user }) => {
         let item;
 
         if (icon == "Liked") {
+            if (!loggedIn) continue;
+
             item = <li key={icon}>
                         <a style={aStyles} onClick={() => toggleLiked(showLiked = !showLiked)}>{icons[icon]}</a>
-                        <dialog style={dialogStyles}>{ icon }</dialog>
+                        <dialog>{ icon }</dialog>
                     </li>
         } else {
             item = <li key={icon}>
                         <Link style={aStyles} onClick={() => toggleLiked(false)} to={icon.toLowerCase()}>{icons[icon]}</Link>
-                        <dialog style={dialogStyles}>{ icon }</dialog>
+                        <dialog>{ icon }</dialog>
                     </li>
         }
 
@@ -89,6 +75,7 @@ const AppSidebar = ({ user }) => {
 }
 
 AppSidebar.propTypes = {
+    loggedIn: bool.isRequired,
     user: object.isRequired
 }
 

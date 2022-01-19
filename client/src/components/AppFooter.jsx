@@ -2,12 +2,12 @@ const footerStyles = {
     backgroundColor: '#fff',
     fontSize: '1rem',
     fontWeight: '300',
-    height: '5vh',
     width: '100vw',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
     margin: '1vh 0 0 5vw',
+    paddingTop: '1vh',
     zIndex: '10'
 }
 
