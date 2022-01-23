@@ -1,7 +1,6 @@
 .vscode
 .DS_Store
 config.ini
-user_routes.py
 
 
 # Byte-compiled / optimized / DLL files

@@ -48,15 +48,12 @@ const Auth = () => {
                 body: JSON.stringify(body)
             })
 
-            const { success, userId } = await res.json();
+            let { success, message,...user } = await res.json();
 
-            if (success) {
-                localStorage.setItem("user", userId);
-                document.cookie = "loggedIn=true;path=/;";
-                return window.location.reload();
-            }
+            for (const attr in user) sessionStorage.setItem(attr, JSON.stringify(user[attr]));
 
-            alert(data.message)
+            if (success) return window.location.reload();
+            alert(message)
         } catch (err) { console.error(err) };
     };
 
@@ -69,30 +66,23 @@ const Auth = () => {
                 email: document.getElementById("email").value,
                 password: document.getElementById("password").value,
                 address: document.getElementById("address").value,
-<<<<<<< HEAD
-                phone_number: document.getElementById("number").value
-            };
-    
-            const res = await fetch('api/signup', {
-=======
                 phoneNumber: document.getElementById("number").value
             };
     
-            const res = await fetch('http://127.0.0.1:5000/signup', {
->>>>>>> cca0a9bb4dc2b6fc0ebc658ca0c4c5aae22478a6
+            const res = await fetch('api/signup', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify(body)
             })
 
-            const data = await res.json();
+            const { success, message } = await res.json();
 
-            if (data.success == true) {
+            if (success == true) {
                 alert("Account successfully created, please log in to continue.")
                 return toggleAction('login');
             }
 
-            alert(data.message)
+            alert(message)
         } catch (err) { console.error(err) };
     }
 

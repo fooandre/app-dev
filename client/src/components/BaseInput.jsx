@@ -22,7 +22,7 @@ const BaseInput = ({ type, field, hide }) => {
     return (
         <label style={hide? {display:'none'} : labelStyles}>
             { field }
-            <input type={type} id={field} name={field} style={inputStyles} />
+            <input type={type} id={field} name={field} style={inputStyles} autoComplete="off" />
         </label>
     )
 }

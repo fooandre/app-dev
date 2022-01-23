@@ -1,4 +1,3 @@
-import { bool } from 'prop-types';
 import { Link, useNavigate } from 'react-router-dom';
 
 const headerStyles = {
@@ -21,14 +20,20 @@ const searchbarStyles = {
     width: '20vw'
 }
 
-const AppHeader = ({ loggedIn }) => {
+const AppHeader = () => {
+    const loggedIn = "userId" in sessionStorage;
+
     const navigate = useNavigate();
 
     const login = () => navigate('/auth');
 
     const logout = () => {
-        localStorage.clear();
-        document.cookie = "loggedIn=false;path=/;";
+        sessionStorage.clear();
+
+        try {
+            fetch("/api/logout");
+        } catch (err) { console.error(err) };
+
         window.location.reload();
     };
 
@@ -39,14 +44,6 @@ const AppHeader = ({ loggedIn }) => {
             <button onClick={loggedIn? logout : login}>{ loggedIn? "Logout" : "Login" }</button>
         </header>
     )
-}
-
-AppHeader.propTypes = {
-    loggedIn: bool.isRequired
-}
-
-AppHeader.defaultProps = {
-    loggedIn: false
 }
 
 export default AppHeader

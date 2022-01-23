@@ -1,0 +1,17 @@
+@api = http://localhost:5000/api
+@userId = "61ebbd261498e82cb276bb96"
+
+# POST {{api}}/login
+# content-type: application/json
+
+# {
+#     "username": "new_seller2",
+#     "password": "123456"
+# }
+
+POST {{api}}/purchase
+content-type: application/json
+
+{
+    "userId": {{userId}}
+}

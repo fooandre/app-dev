@@ -1,16 +1,17 @@
 import { HeartIcon, HomeIcon, KeyIcon, UserCircleIcon } from '@heroicons/react/outline';
-import { bool, object } from 'prop-types';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import AppLiked from './AppLiked';
 
-const navbarStyles = {
+const navStyles = {
     backgroundColor: '#3f4248',
+    boxShadow: '1px 0 2px 0 black',
     height: '100vh',
     width: '5vw',
     position: 'fixed',
     display: 'flex',
     flexDirection: 'column',
+    overflow: 'visible',
     zIndex: '10'
 }
 
@@ -20,7 +21,8 @@ const aStyles = {
     width: '5vw',
     display: 'flex',
     alignItems: 'center',
-    justifyContent: 'center'
+    justifyContent: 'center',
+    cursor: 'pointer'
 }
 
 const svgStyles = {
@@ -28,9 +30,9 @@ const svgStyles = {
     height: '3vh'
 }
 
-const AppSidebar = ({ loggedIn, user }) => {
-    const { liked } = user;
-    
+const AppSidebar = () => {
+    const loggedIn = "userId" in sessionStorage;
+
     let [ showLiked, toggleLiked ] = useState(false);
     
     let icons = {
@@ -56,27 +58,22 @@ const AppSidebar = ({ loggedIn, user }) => {
                     </li>
         } else {
             item = <li key={icon}>
-                        <Link style={aStyles} onClick={() => toggleLiked(false)} to={icon.toLowerCase()}>{icons[icon]}</Link>
+                        <Link style={aStyles} to={icon}>{icons[icon]}</Link>
                         <dialog>{ icon }</dialog>
                     </li>
         }
 
-        content.push(item)
+        content.push(item);
     }
 
     if (showLiked) return (
         <>
-            <AppLiked close={() => toggleLiked(false)} products={liked} />
-            <navbar style={navbarStyles}>{ content }</navbar>
+            <AppLiked close={() => toggleLiked(false)} />
+            <nav style={navStyles}>{ content }</nav>
         </>
     )
     
-    return <navbar style={navbarStyles}>{ content }</navbar>
-}
-
-AppSidebar.propTypes = {
-    loggedIn: bool.isRequired,
-    user: object.isRequired
+    return <nav style={navStyles}>{ content }</nav>
 }
 
 export default AppSidebar

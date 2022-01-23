@@ -10,11 +10,10 @@ import Product from "./routes/Product";
 import Search from "./routes/Search";
 import Shop from "./routes/Shop";
 import User from "./routes/User";
-import { products, user } from "./State";
 
 const rootElement = document.getElementById("root");
 
-let loggedIn = document.cookie == ""? false : decodeURIComponent(document.cookie).slice(9) == "true";
+const loggedIn = "userId" in sessionStorage;
 
 window.onload = () => {
 	const searchbar = document.getElementById("searchbar");
@@ -33,11 +32,11 @@ render(
 	<>
 		<Router>
 			<Routes>
-				<Route path="/" element={<App loggedIn={loggedIn} user={user} />}>
-					<Route path="" element={<Shop products={products} />} />
+				<Route path="/" element={<App />}>
+					<Route path="" element={<Shop />} />
 					<Route path="shop" element={<Navigate to="/" />} />
 					<Route path="search" element={<Search />} />
-					<Route path="product/:productId" element={<Product loggedIn={loggedIn} likedItems={user.liked} products={products} />} />
+					<Route path="product/:productId" element={<Product />} />
 					<Route path="auth" element={ loggedIn? <Navigate to={-1} /> : <Auth /> } />
 					<Route path="user" element={ loggedIn? <User /> : <Navigate to="/auth" />} />
 					<Route path="admin" element={ loggedIn? <Admin /> : <Navigate to="/auth" />} />

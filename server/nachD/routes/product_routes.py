@@ -18,6 +18,13 @@ class NotMerchant(Exception):
     def __init__(self, message) -> None:
         super().__init__(message)
 
+class IncorrectPicFormat(Exception):
+    def __init__(self, message) -> None:
+        super().__init__(message)
+
+class UpdateQuantityError(Exception):
+    def __init__(self, message) -> None:
+        super().__init__(message)  
 
 def delete_product(userId: str, productId: str):
     # When deleting product warn the merchant that any outstanding orders with the product will now display as product deleted. Suggest clearing all pending orders first.
@@ -52,14 +59,13 @@ def save_image(prod, data):
             fixed_image.save(picture_path)
             prod.img = picture_fn
         else:
-            raise mongoengine.errors.ValidationError
+            raise IncorrectPicFormat("We only accept jpg, png, jpeg file formats.")
     return prod
 
 
 def add_product(request, user):
     data = request
     # first check if the user is a merchant, then only add a product.
-    # if user.merchant:
     product = Product()
     prod = save_image(product, data)
 
@@ -69,6 +75,7 @@ def add_product(request, user):
     prod.user = user
     prod.desc = data["desc"]
     prod.qty = int(data["qty"])
+    prod.category = data["category"]
     prod.save()
 
     # After creating the product we also add the product into the User's product list
@@ -100,13 +107,13 @@ def update_product(request, userId):
     prod_id = data["productId"]
     product = Product.objects(id=prod_id).get()
     if str(product.user.id) == userId:
-
         prod = replace_image(product, image_data)
 
         product.name = data["name"]
         prod.price = float(data["price"])
         prod.desc = data["desc"]
         prod.qty = int(data["qty"])
+        prod.category = data["category"]
         prod.save()
 
         return prod
@@ -117,14 +124,14 @@ def update_product(request, userId):
 def post_review(data, user, product_id):
 
     order = ""
-    # find the order id in purchaser's order list. Make sure the user has the order id. Might need to check if they r merchant
-    for matchingOrder in user.orders:
+    # find the order id in purchaser's purchases list. Make sure the user has the order id. Might need to check if they r merchant
+    for matchingOrder in user.purchases:
         if str(matchingOrder.id) == data["orderId"]:
             order = Order.objects(id=data["orderId"]).get()
             break
 
-    # if order is not empty and user is not the merchant himself, found the order perform below
-    if order and not user.merchant:
+    # if order is not empty, found the order perform below
+    if order:
         # find the matching product id
         for order in order.products:
             if str(order.product.id) == product_id:
@@ -143,10 +150,9 @@ def post_review(data, user, product_id):
     return False
 
 
-@app.route("/product/<product_id>")
+@app.route("/api/product/<product_id>")
 def get_one_product(product_id):
     try:
-
         reviews = []
         prod = Product.objects(id=product_id).get()
         print(prod)
@@ -166,8 +172,9 @@ def get_one_product(product_id):
                 "desc": prod["desc"],
                 "qty": prod["qty"],
                 "img": prod["img"],
+                "category":prod["category"].value,
                 "user": {
-                    "user": str(prod["user"]["id"]),
+                    "userId": str(prod["user"]["id"]),
                     "username": prod["user"]["username"]
                 },
                 "reviews": reviews
@@ -185,19 +192,62 @@ def get_one_product(product_id):
             "message": "Error while retrieving the product. Please try again."
         }, 404
 
+def update_quantity(list_product, userId):
+    state=True
+    for update_qty in list_product["products"]:
+        prod = Product.objects(id=update_qty["id"]).get()
+        if str(prod.user.id) == userId:
+            prod.qty += update_qty["qty"]
+            prod.save()
+        else:
+            state= False
+    return state
 
-@app.route('/product/admin', methods=["Post", "Patch"])
-def product_route():
-
-    if "user" not in session:
-        # Not logged in
-        return {
-            "auth": False,
-            "message": "Please login first."
-        }
+@app.route("/api/product", methods=["post"])
+def update_products_qty():
+    userId = session.get("user")
+    
+    data = request.get_json()
     try:
-        userId = session["user"]
+        if "user" in session and userId != data["userId"]:   
+        # Not logged in
+            return {
+                "success": False,
+                "message": "Please login first."
+            }
+            
+        isSuccess = update_quantity(data,userId)
+        if isSuccess:
+            return {
+                "success":True
+            }
+        else:
+           raise UpdateQuantityError("There was an error while updating quantity of some products.")
+    except UpdateQuantityError as e:
+        print(traceback.format_exc())
+        return {
+            "success":False,
+            "message":str(e)
+        }
+    except:
+        print(traceback.format_exc())
+        return {
+            "success":False
+        }
 
+
+@app.route('/api/product/admin', methods=["Post", "Patch"])
+def product_route():
+    try:
+        userId = session.get("user")
+       
+        data = request.form.to_dict()
+        if "user" in session and userId != data["userId"]:   
+            # Not logged in
+            return {
+                "success": False,
+                "message": "Please login first."
+            }
         # Add product
         if request.method == "POST":
             user = User.objects(id=userId).get()
@@ -211,7 +261,8 @@ def product_route():
                 "desc": prod["desc"],
                 "qty": prod["qty"],
                 "img": prod["img"],
-                "user": str(prod["user"]["id"])
+                "category":prod["category"].value,
+                "userId": str(prod["user"]["id"])
             }
 
         # Update the products with product id
@@ -226,14 +277,19 @@ def product_route():
                 "desc": prod["desc"],
                 "qty": prod["qty"],
                 "img": prod["img"],
-                "user": str(prod["user"]["id"])
+                "category":prod["category"].value,
+                "userId": str(prod["user"]["id"])
             }
-
+    except IncorrectPicFormat as e:
+        return {
+            "success":False,
+            "message":str(e)
+        }
     except mongoengine.errors.ValidationError:
         print(traceback.format_exc())
         return{
             "success": False,
-            "message": "We only accept jpg, png, jpeg file formats."
+            "message": "Please only use Fashion & Accessories, Electronics, Toys & Games, Home & Living for category."
         }
     except (WrongOwner, NotMerchant) as e:
         return {
@@ -249,15 +305,16 @@ def product_route():
         }
 
 
-@app.route('/product/admin/<product_id>', methods=["DELETE"])
+@app.route('/api/product/admin/<product_id>', methods=["DELETE"])
 def product_delete_route(product_id):
     # Delete a products by looking at users array of orders placed with them. And search for the product id.
     # If the product Id exist in the array. Don't allow delete.
-
-    if "user" not in session:
+    userId = session.get("user")
+    data = request.get_json()
+    if "user" in session and userId != data["userId"]:   
         # Not logged in
         return {
-            "auth": False,
+            "success": False,
             "message": "Please login first."
         }
     try:
@@ -288,19 +345,17 @@ def product_delete_route(product_id):
         }
 
 
-@app.route('/product/review/<product_id>', methods=['post'])
+@app.route('/api/product/review/<product_id>', methods=['post'])
 def review_product(product_id):
-
+    userId = session.get("user")
     data = request.get_json()
-    if "user" not in session:
+    if "user" in session and userId != data["userId"]:   
         # Not logged in
         return {
-            "auth": False,
+            "success": False,
             "message": "Please login first."
         }
     try:
-        userId = session["user"]
-
         # The purchaser
         user = User.objects(id=userId).get()
 
@@ -330,14 +385,14 @@ def review_product(product_id):
             "comment": feedback[0]["comment"],
             "rating": feedback[0]["rating"],
             "product": {
-                "id": str(feedback[1]["id"]),
+                "productId": str(feedback[1]["id"]),
                 "name": feedback[1]["name"],
                 "price": feedback[1]["price"],
             }
         }
 
 
-@app.route("/product/all")
+@app.route("/api/product/all")
 def get_all_products():
     try:
         all_products = Product.objects[:20]
@@ -352,8 +407,9 @@ def get_all_products():
                 "desc": eachProduct["desc"],
                 "qty": eachProduct["qty"],
                 "img": eachProduct["img"],
+                "category":eachProduct["category"].value,
                 "user": {
-                    "user": str(eachProduct["user"]["id"]),
+                    "userId": str(eachProduct["user"]["id"]),
                     "username": eachProduct["user"]["username"]
                 },
             }

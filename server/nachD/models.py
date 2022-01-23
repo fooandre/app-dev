@@ -14,6 +14,12 @@ class Status(Enum):
 	DELIVERING = "Delivery"
 	COMPLETED = "Completed"
 
+class Category(Enum):
+	FASHION_ACCESSORIES = "Fashion & Accessories"
+	ELECTRONICS = "Electronics"
+	TOYS_GAMES = "Toys & Games"
+	HOME_LIVING = "Home & Living"
+
 
 def validate_status(status):
 
@@ -29,7 +35,8 @@ class Products_Order(Document):
 	status=EnumField(Status, default=Status.ORDER_PLACED)
 	completed = BooleanField(default=False)
 	already_reviewed=BooleanField(default=False)
-	merchant = ObjectIdField(required=True)
+	merchant = ReferenceField("User",required=True)
+	purchaser = ReferenceField("User", required=True)
 
 	def __str__(self):
 		return f"Products_Order(product={self.product}, qty={self.qty}, status={self.status}, completed={self.completed})"
@@ -45,7 +52,6 @@ class Order(Document):
 	def __str__(self):
 		return f"Orders(products={self.products})"
 
-
 class Product(Document):
 
 	name= StringField(required=True)
@@ -55,7 +61,7 @@ class Product(Document):
 	qty = IntField(default=0)
 	img = StringField(default="default.png")
 	qty_sold = IntField(default=0)
-
+	category = EnumField(Category)
 	reviews = ListField(ReferenceField("Review"))
 
 	meta = {
@@ -64,19 +70,6 @@ class Product(Document):
 
 	def __str__(self):
 		return f"Product(name={self.name}, price={self.price}, user={self.user}, reviews=[{self.reviews}])"
-
-# class User(Document):
-# 	username= StringField(required=True,unique=True)
-# 	orders=ListField(ReferenceField("Order"))
-# 	products=ListField(ReferenceField("Product"))
-# 	merchant=BooleanField(default=False)
-
-# 	meta = {
-# 		'collection':'user'
-# 	}
-
-# 	def __str__(self):
-# 				return f"User(username={self.username})"
 
 
 class Review(Document):
@@ -95,10 +88,10 @@ class User(Document):
 	address = StringField(required = True)
 	phoneNumber = StringField(required = True)
 	orders = ListField(ReferenceField("Order"))
-	purchases = ListField(ReferenceField("Product"))
+	purchases = ListField(ReferenceField("Order"))
 	products = ListField(ReferenceField("Product"))
 	likedProducts = ListField(ReferenceField("Product"))
-	cart = ListField(ReferenceField("Product"))
+	cart = ListField()
 
 	meta = {
 			'collection': 'user'

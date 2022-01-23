@@ -1,20 +1,21 @@
-import { object, string } from 'prop-types';
-import { useState } from "react";
+import { func, object } from 'prop-types';
+import { useEffect, useState } from "react";
 import { Link } from 'react-router-dom';
 
 const figureStyles = {
     borderRadius: '5px',
-    width: 'fit-content',
+    width: '17vw',
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'space-between',
     gap: '1vh',
-    padding: '1vh 1vw'
+    padding: '1vh 1vw',
+    margin: '2px'
 }
 
 const figcaptionStyles = {
     display: 'flex',
-    alignItems: 'center',
+    alignItems: 'flex-start',
     justifyContent: 'space-between'
 }
 
@@ -25,54 +26,33 @@ const imgStyles = {
 }
 
 
-const BaseProduct = ({ cls, product }) => {
-    const { _id: id, name, price, img: image } = product;
-    const disabled = cls == "hide";
+const BaseProduct = ({ product, closeLiked }) => {
+    const { id, name, price, img: image } = product;
 
     let [ src, setSrc ] = useState();
 
-    const fetchImage = async () => {
-        const res = await fetch(`api/static/product_pics/${image}`);
-        const imageBlob = await res.blob();
-        const imageObjectURL = URL.createObjectURL(imageBlob);
-        setSrc(imageObjectURL);
-    };
-
-    fetchImage()
-
-    console.log(product);
+    useEffect(async () => {
+        const res = await fetch(`http://127.0.0.1:5000/static/product_pics/${image}`);
+        setSrc(URL.createObjectURL(await res.blob()));
+    }, [])
     
     return (
-        <Link to={`/product/${id}`} onClick={disabled? e => e.preventDefault(): {}}>
-            <figure style={disabled? {...figureStyles, opacity:'0',cursor:'default'} : figureStyles}>
+        <Link to={`/product/${id}`} onClick={closeLiked}>
+            <figure style={figureStyles}>
                 <figcaption style={figcaptionStyles}>
-                    <h3>{ name }</h3>
+                    <h4>{ name }</h4>
                     <h3>${ price }</h3>
-                </figcaption>
-            
-                <img src={fetchImage} style={imgStyles} />
+                </figcaption>            
+                
+                <img src={src} style={imgStyles} />
             </figure>
         </Link>
     )
 }
 
 BaseProduct.propTypes = {
-    cls: string,
-    product: object
-}
-
-BaseProduct.defaultProps = {
-    product: {
-		'_id': null,
-		'name': null,
-		'price': 0,
-		'user': null,
-		'category': null,
-		'desc': null,
-		'qty': 0,
-		'image': 'null',
-		'reviews': []
-	},
+    product: object.isRequired,
+    close: func
 }
 
 export default BaseProduct

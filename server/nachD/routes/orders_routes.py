@@ -11,31 +11,39 @@ from nachD.models import Order, Product, Products_Order, Status, User
 class NotEnufQuatityError(Exception):
 	def __init__(self, message):
 			super().__init__(message)
+class EmptyCart(Exception):
+	def __init__(self, message):
+			super().__init__(message)
 
 def check_product_quantity(purchased_products):
 	for ordered_product in purchased_products:
-		print(ordered_product["id"])
-		prod = Product.objects(id=ordered_product["id"]).get()
+		print(ordered_product["productId"])
+		prod = Product.objects(id=ordered_product["productId"]).get()
 	# check first whether enough quantity of stock 
 		if not prod["qty"] >= ordered_product["qty"]:
 			raise NotEnufQuatityError("One of the product do not have enough stock for the order placed.")
 
-def place_new_order(purchased_products, purchaserId): # list of purchased_products
+def place_new_purchase_order(purchaserId): # list of purchased_products
+	user = User.objects(id=purchaserId).get()
+	purchased_products = user.cart
+	# list is empty 
+	if not purchased_products:
+		raise EmptyCart("Your cart is empty. Add something before checking out.")
 	check_product_quantity(purchased_products)
 	ord = Order()
 	merchants = []
 
-	user = User.objects(id=purchaserId).get()
 	for ordered_product in purchased_products:
-		prod = Product.objects(id=ordered_product["id"]).get()
+		prod = Product.objects(id=ordered_product["productId"]).get()
 		prod.qty -= ordered_product["qty"]
 		prod.qty_sold += ordered_product["qty"]
 		prod.save()
 		#Create the products_order class with qty, status, etc, with reference to the product. Then saved in order.products
 		prod_ordered = Products_Order()
+		prod_ordered.purchaser = user
 		prod_ordered.product= prod
 		prod_ordered.qty = ordered_product["qty"]
-		prod_ordered.merchant = prod.user.id
+		prod_ordered.merchant = prod.user
 		prod_ordered.save()
 		ord.products.append(prod_ordered)
 
@@ -47,8 +55,8 @@ def place_new_order(purchased_products, purchaserId): # list of purchased_produc
 
 	ord.save()
 	# Add products into the purchaser's orders list
-	print(ord)
-	user.orders.append(ord)
+	user.purchases.append(ord)
+	user.cart = []
 	user.save()
 
 	# Then add the order into the merchants's order list
@@ -56,11 +64,10 @@ def place_new_order(purchased_products, purchaserId): # list of purchased_produc
 		merchant.orders.append(ord)
 		merchant.save()
 
-	return ord
+	return user
 
+# Getting the seller's orders being placed with the seller
 def get_one_order(order_id, userId):
-	user = User.objects(id=userId).get()
-	isMerchant = user.merchant
 	ord = Order.objects(id=order_id).get()
 
 	obj = []	
@@ -68,9 +75,10 @@ def get_one_order(order_id, userId):
 	for order in ord.products:
 		print(order)
 		# check if the product still exist as it might have been deleted. If product exist means uer exist, due to cascade in product.
-		if isMerchant:
-			if not str(order.merchant) == userId:
-				continue
+		
+		if not str(order.merchant.id) == userId: # if the seller Id is not the merchant in the order, means he does not owns that product, so skip. 
+			# Then skip those ordered products that those not belong to the merchant
+			continue
 		if order.product == None:
 			obj.append({
 				"name":"Deleted product",
@@ -79,15 +87,20 @@ def get_one_order(order_id, userId):
 			})
 		else:
 			obj.append({
-				"id":str(order.product["id"]),
+				"productId":str(order.product["id"]),
 				"name":order.product["name"],
 				"price":order.product["price"],
 				"qty":order.qty,
 				"status":order.status.value,
 				"img":order.product["img"],
 				"date_ordered":datetime.datetime.strftime(order.date_ordered, "%d/%m/%Y"),
-				"user":{
-						"user":str(order.product["user"]["id"]), 
+				"purchaser":{
+					"userId": str(order.purchaser.id),
+					"address":order.purchaser.address,
+					"username":order.purchaser.username
+				},
+				"merchant":{
+						"userId":str(order.product["user"]["id"]), 
 						"username":order.product["user"]["username"]
 				}        
 			})
@@ -116,28 +129,58 @@ def update_order_status(data, order_id, userId):
 
 
 
+# purchase a product
+@app.route('/api/purchase', methods = ["post"])
+def place_purchase():
 
-@app.route('/order', methods = ["post"])
-def place_order():
-
-	data = request.get_json()
-
-	# Login first before placing order
-	if "user" not in session:
-			# Not logged in
-			return {
-					"auth":False,
-					"message":"Please login first."
-			}
 	try:
+			userId = session.get("user")
+			data = request.get_json()
+			# Login first before placing order
+			if "user" in session and userId != data["userId"]:   
+					# Not logged in
+					return {
+							"success": False,
+							"message": "Please login first."
+					}
 
-			userId = session["user"]
-			place_new_order(data["products"], userId)
+			user = place_new_purchase_order(userId)
+			purchases = []
+			for ord in user.purchases:
+				obj = {
+						"orderId": str(ord.id),
+						"products":[]
+				}
+				for order in ord.products:
+						if order.product == None:
+								obj["products"].append({
+										"name":"Deleted product",
+										"qty":order.qty,
+										"status":order.status.value,
+								})
+						else:
+								obj["products"].append({
+										"id":str(order.product["id"]),
+										"name":order.product["name"],
+										"price":order.product["price"],
+										"qty":order.qty,
+										"status":order.status.value,
+										"img":order.product["img"],
+										"status":order.status.value,
+										"orderId":str(ord.id),
+										"category":order.product["category"].value,
+										"date_ordered":datetime.datetime.strftime(order.date_ordered, "%d/%m/%Y"),
+										"user":{
+												"userId":str(order.product["user"]["id"]), 
+												"username":order.product["user"]["username"]
+										}          
+								})
+				purchases.append(obj)
 			return {
 					"success":True,
-					"messaage":"Order placed",
+					"purchases": purchases
 			}
-	except NotEnufQuatityError as e:
+	except (NotEnufQuatityError,EmptyCart) as e:
 		print(traceback.format_exc())	
 		return {
 			"success":False,
@@ -147,17 +190,26 @@ def place_order():
 			print(traceback.format_exc())
 			return {
 					"success":False,
-					"message":"Error while placing order! Try again."
-			}, 404
-			
-@app.route('/order/<order_id>', methods=["Get", "patch"])
-def get_order(order_id):
+					"message":"Error while placing purchase order! Try again."
+			}
+
+# look at seller's orders
+@app.route('/api/order/<order_id>', methods=["Post", "patch"])
+def seller_order(order_id):
 
 	try:
-		userId = session["user"]
-		if request.method == "GET":
-			# Need to implement only the logged in user with that order Id can view it LATER ON
-			ord = get_one_order(order_id, userId) # products get auto with orders
+		userId = session.get("user")
+		data = request.get_json()
+		# Login first before placing order
+		if "user" in session and userId != data["userId"]:   
+				# Not logged in
+				return {
+						"success": False,
+						"message": "Please login first."
+				}
+		if request.method == "POST":
+			# Need to implement only the logged in user (the seller) that owns the product Id can view it
+			ord = get_one_order(order_id, userId) 
 			return {
 					"success":True, 
 					"products":ord
@@ -179,6 +231,73 @@ def get_order(order_id):
 								"success":False,
 								"message": "You do not have permission to update the status. Please log in with the correct user."
 						}
+	except mongoengine.DoesNotExist:
+		print(traceback.format_exc())
+		return {
+				"success":False,
+				"message":"Order does not exist. Please check if order exist and try again."
+		}, 404
+	except mongoengine.ValidationError:
+			return {
+					"success":False,
+					"message":"Choose status only from the options."
+			}
+	except:
+		print(traceback.format_exc())
+		return {
+				"success":False,
+				"message":"Error while getting order! Please try again."
+		}, 404
+
+def see_purchase_order(order_id, userId):
+	ord = Order.objects(id=order_id).get()
+
+	obj = []	
+
+	for order in ord.products:
+		# check if the product still exist as it might have been deleted. If product exist means uer exist, due to cascade in product.
+		
+		if order.product == None:
+			obj.append({
+				"name":"Deleted product",
+				"qty":order.qty,
+				"status":order.status.value,
+			})
+		else:
+			obj.append({
+				"productId":str(order.product["id"]),
+				"name":order.product["name"],
+				"price":order.product["price"],
+				"qty":order.qty,
+				"status":order.status.value,
+				"img":order.product["img"],
+				"date_ordered":datetime.datetime.strftime(order.date_ordered, "%d/%m/%Y"),
+				"merchant":{
+						"userId":str(order.product["user"]["id"]), 
+						"username":order.product["user"]["username"]
+				}        
+			})
+	return obj
+
+@app.route('/api/purchase_order/<order_id>', methods=["Post"])
+def purchaser_order(order_id):
+	try:
+		userId = session.get("user")
+		data = request.get_json()
+		# Login first before seeing placed order
+		if "user" in session and userId != data["userId"]:   
+				# Not logged in
+				return {
+						"success": False,
+						"message": "Please login first."
+				}
+	
+		# logged in user (the purchaser) can view all products they purchase
+		ord = see_purchase_order(order_id, userId) 
+		return {
+				"success":True, 
+				"products":ord
+		}
 	except mongoengine.DoesNotExist:
 		print(traceback.format_exc())
 		return {

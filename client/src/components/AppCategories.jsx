@@ -42,7 +42,7 @@ const AppCategories = ({ showIcons }) => {
     for (const category in categories) {
         content.push(<Link key={category} to="/search">
                         <figure style={figureStyles}>
-                            <img src={categories[category]} style={showIcons? imgStyles : {display: 'none'}} />
+                            { showIcons && <img src={categories[category]} style={imgStyles} /> }
                             <figcaption>{category}</figcaption>
                         </figure>
                     </Link>)

@@ -1,51 +1,32 @@
-import BaseInput from '../components/BaseInput';
+import { useState } from 'react';
+import AdminAnalytics from '../components/AdminAnalytics';
+import AdminInventory from '../components/AdminInventory';
+import AdminOrders from '../components/AdminOrders';
+import AdminTabs from '../components/AdminTabs';
 
-const formStyles = {
-    position: 'relative',
-    top: '40vh',
-    left: '45vw',
-    width: 'fit-content',
+const sectionStyles = {
+    backgroundColor: 'aqua',
+    outline: '2px solid black',
+    borderRadius: '0.5rem',
     display: 'flex',
     flexDirection: 'column',
-    alignItems: 'flex-start',
-    gap: '5vh',
-    transform: 'translate(-50%, -50%)'
-}
+    alignItems: 'center',
+    gap: '3vh',
+    padding: '7vh 0 5vh 0',
+  }
+  
 
 const Admin = () => {
-    const addProduct = async e => {
-        try {
-            e.preventDefault();
-
-            const body = {
-                name: document.getElementById("name").value,
-                price: document.getElementById("price").value,
-                desc: document.getElementById("desc").value,
-                qty: document.getElementById("qty").value,
-                img: document.getElementById("img").value
-            };
-
-            const res = await fetch('api/product/admin', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify(body)
-            })
-
-            const data = await res.json();
-            console.log(data);
-            } catch (err) { console.error(err) };
-        }
+    const username = JSON.parse(sessionStorage.getItem('username'));
+    
+    let [ show, setShow ] = useState("analytics");
 
     return (
-        <form style={formStyles}>
-            <h1>Add product</h1>
-            <BaseInput field="name" />
-            <BaseInput type="number" field="price" />
-            <BaseInput field="desc" />
-            <BaseInput type="number" field="qty" />
-            <BaseInput type="file" field="img" />
-            <button onClick={addProduct}>Add</button>
-        </form>
+        <>
+            <AdminTabs show={show} toggleDisplay={state => setShow(state)} />
+            <h2 style={{width: 'fit-content', marginBottom: '1vh'}}>Welcome back, { username }</h2>
+            <section style={sectionStyles}>{ show == "analytics"? <AdminAnalytics /> : show == "orders"? <AdminOrders /> : <AdminInventory /> }</section>
+        </>
     )
 }
 

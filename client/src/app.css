@@ -6,6 +6,7 @@
     box-sizing: border-box;
     font-family: 'Montserrat', sans-serif;
     overflow-x: hidden;
+    scroll-behavior: smooth;
     transition: all 0.3s ease-out;
 }
 
@@ -35,10 +36,11 @@ a {
 }
 
 main {
-    padding: 0 2vw;
+    position: relative;
     min-height: 87vh;
     height: fit-content;
     margin-left: 5vw;
+    padding: 0 2.5vw 1vh;
 }
 
 /* Button */
@@ -52,7 +54,8 @@ button {
     padding: 1vh 1vw;
 }
 
-button:hover {
+button:hover,
+button:focus {
     box-shadow: 1px 1px 1px #6c7386;
     background-color: #6c7386;
     color: #fff;
@@ -60,7 +63,7 @@ button:hover {
     font-weight: 700;
 }
 
-button:active {
+button:focus {
     box-shadow: inset 1px 1px 2px black;
 }
 
@@ -93,15 +96,13 @@ input:hover {
 
 /* Sidebar */
 
-navbar a:hover {
-    background-color: #5f6166;
-    cursor: pointer;
+nav a:hover {
+    background-color: #27282b;
 }
 
-navbar a + dialog {
-    background-color: rgb(210, 251, 255);
+nav a + dialog {
     border: none;
-    border-radius: 10px;
+    border-radius: 1rem;
     box-shadow: black 1px 1px 2px 0;
     font-size: 0.75rem;
     position: absolute;
@@ -110,12 +111,12 @@ navbar a + dialog {
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 1vh 1vw;
+    padding: 1vh 2vw;
     opacity: 0;
     cursor: default;
 }
 
-navbar a:hover + dialog {
+nav a:hover + dialog {
     opacity: 1;
     transition-delay: 1s;
 }
@@ -124,6 +125,7 @@ navbar a:hover + dialog {
 
 figure:hover {
     background-color: #f3f3f3;
+    box-shadow: 0 1px 2px 0 black;
     cursor: pointer;
 }
 
@@ -132,12 +134,14 @@ figure:hover img {
 }
 
 #heart:hover {
-    fill: red;
     cursor: pointer;
+    outline: 1px solid red;
+    padding: 1vh 1vw;
 }
 
 #heart:active {
     box-shadow: inset 1px 1px 2px black;
+    fill: red;
     outline-color: red;
 }
 
@@ -156,4 +160,44 @@ figure:hover img {
 
 #switch:hover {
     text-decoration: underline;
+}
+
+/* Table */
+
+table {
+    border: 1px solid black;
+    border-collapse: collapse;
+    width: 70vw;
+    padding: 1vh 1vw;
+}
+
+thead {
+    box-shadow: 0 1px 1px 0 rgb(63, 66, 72);
+    background-color: rgb(240, 240, 240);
+    font-weight: 700;
+}
+
+tr {
+    border-bottom: 1px solid rgba(0, 0, 0, 0.6);
+}
+
+td {
+    padding: 2vh 1vw;
+}
+
+td:first-child {
+    padding-left: 1vw;
+}
+
+thead td:first-child:hover {
+    text-decoration: none;
+}
+
+td:first-child:hover {
+    text-decoration: underline;
+}
+
+td:last-child {
+    text-align: end;
+    padding-right: 1vw;
 }

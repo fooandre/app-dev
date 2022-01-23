@@ -24,7 +24,7 @@ const h3Styles = {
     fontSize: '0.9rem'
 }
 
-const BaseReview = ({ review }) => {
+const ProductReview = ({ review }) => {
     const { user: { _id: id, username }, rating, comment, date } = review;
 
     const msPerDay = 1000 * 60 * 60 * 24;
@@ -52,4 +52,4 @@ const BaseReview = ({ review }) => {
     )
 }
 
-export default BaseReview
+export default ProductReview

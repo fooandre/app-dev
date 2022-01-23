@@ -1,27 +1,25 @@
-import { array } from 'prop-types';
+import { useEffect, useState } from 'react';
 import AppCategories from '../components/AppCategories';
-import AppGrid from '../components/AppGrid';
+import BaseGrid from '../components/BaseGrid';
 import BaseProduct from '../components/BaseProduct';
 
-const Shop = ({ products }) => {
-    let content = [];
+const Shop = () => {
+    let [ content, appendContent ] = useState([]);
 
-    // console.log(products);
-    for (const product of products) {
-        if (content.length >= products.length && content.length % rowLength == 0) break;
-        content.push(<BaseProduct key={product.id} product={product} />);
-    };
+    useEffect(async () => {
+        try {
+            const res = await fetch("/api/product/all")
+            const { products } = await res.json();
+            for (const { id, ...product } of products) appendContent(content => [...content, <BaseProduct key={id} product={{id, ...product}} />])
+        } catch (err) { console.error(err) };
+    }, [])
 
     return (
         <>
             <AppCategories showIcons={true} />
-            { content.length == 0? <h1>No products to show</h1> : <AppGrid rowLength={5}>{ content }</AppGrid> }
+            { content.length == 0? <h1>No products to show</h1> : <BaseGrid rowLength={5}>{ content }</BaseGrid> }
         </>
     )
-}
-
-Shop.propTypes = {
-    products: array.isRequired
 }
 
 export default Shop

@@ -1,9 +1,9 @@
-import { HeartIcon } from '@heroicons/react/outline';
-import { array, bool } from 'prop-types';
-import { useState } from 'react';
-import { useParams } from "react-router-dom";
+import { useEffect, useState } from 'react';
+import { useParams } from 'react-router-dom';
 import AppCategories from '../components/AppCategories';
-import BaseReview from '../components/ProductReview';
+import ProductButtons from '../components/ProductButtons';
+import ProductReviews from '../components/ProductReviews';
+
 
 const productStyles = {
     position: 'relative',
@@ -44,7 +44,7 @@ const rightTitleStyles = {
     backgroundColor: '#f1f1f1',
     height: '5vh',
     alignItems: 'center',
-    padding: '0 1vw'
+    padding: '1vh 1vw'
 }
 
 const h3Styles = {
@@ -53,10 +53,6 @@ const h3Styles = {
 
 const descH3Styles = {
     maxWidth: 'inherit'
-}
-
-const reviewsH3Styles = {
-    fontWeight: '700'
 }
 
 const imgStyles = {
@@ -73,35 +69,6 @@ const infoStyles = {
     gap: '3vh'
 }
 
-const callToActionStyles = {
-    position: 'absolute',
-    top: '8vh',
-    right: '0',
-    display: 'flex',
-    alignItems: 'center',
-    gap: '1vw'
-}
-
-const heartStyles = {
-    borderRadius: '5px',
-    color:'red',
-    height:'4vh',
-    outline: '1px solid black',
-    padding: '1vh'
-}
-
-const addToCartStyles = {
-    backgroundColor: 'red',
-    color: 'white',
-    fontSize: '0.75rem',
-    fontWeight: '700'
-}
-
-const disabledStyles = {
-    backgroundColor: 'gray',
-    pointerEvents: 'none'
-}
-
 const spanStyles = {
     display: 'flex',
     flexDirection: 'column',
@@ -110,90 +77,126 @@ const spanStyles = {
     margin: '0 1vw'
 }
 
-const reviewsStyles = {
-    width: 'inherit',
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'flex-start',
-    gap: '1vh'
-}
 
-const hrStyles = {
-    width: 'inherit'
-}
-
-
-const Product = ({ loggedIn, likedItems, products }) => {
-    const product = products.filter(product => product._id == useParams().productId)[0];
-    const { _id: id, name, price, user: { username }, category, desc, qty, image, reviews } = product;
+const Product = () => {
+    const loggedIn = "userId" in sessionStorage;    
+    const user = JSON.parse(sessionStorage.getItem('userId'));
+    const { productId } = useParams();
     
-    // let liked = likedItems.map(({ _id: id }) => id).includes(productId);
-    let [ liked, toggleLiked ] = useState(false);
+    let [ product, setProduct ] = useState(null);
+    let [ src, setSrc ] = useState("");
+    let [ reviews, setReviews ] = useState([]);
+    let [ liked, setLiked ] = useState(false);
+    
+    useEffect(async () => {
+        let res = await fetch(`http://127.0.0.1:5000/api/product/${productId}`);
+        const { product } = await res.json();
+        
+        const { id, img: image, reviews, qty } = product;
+        
+        res = await fetch(`http://127.0.0.1:5000/static/product_pics/${image}`);
+        
+        setSrc(URL.createObjectURL(await res.blob()));
+        setProduct(product);
+        setReviews(reviews);
 
-    let productReviews = [];
+        if (loggedIn) {
+            const likedProducts = JSON.parse(sessionStorage.getItem("likedProducts"));
+            for (const { id } of likedProducts) if (productId === id) return setLiked(true);
+        }
+    }, [])
+    
+    const toggleLiked = async () => {
+        try {
+            setLiked(!liked);
+            const method = liked? "PATCH" : "POST";
 
-    for (const review of reviews) {
-        if (productReviews.length >= reviews.length) break
+            const res = await fetch("/api/likedProduct", {
+                method: method,
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    "userId": user,
+                    "productId": productId
+                })
+            })
 
-        let item = <BaseReview key={review._id} review={review} />
+            const { success, message, likedProducts } = await res.json();
 
-        productReviews.push(item);
+            if (success) {
+                sessionStorage.setItem('likedProducts', JSON.stringify(likedProducts));
+                return window.location.reload();
+            }
+
+            alert(message);
+        } catch (err) { console.error(err) };
     }
 
+    const addToCart = async () => {
+        let p = prompt("How many do you want to add to cart?");
+
+        if (parseInt(p) > product.qty) return alert(`Sorry, item only has ${product.qty} left in stock.`);
+        if (p === null || p === "") return alert("Process cancelled.");
+        
+        const qty = parseInt(p);
+
+        try {
+            const res = await fetch("/api/updateUserCart", {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    "userId": user,
+                    "productId": productId,
+                    "qty": qty
+                })
+            })
+
+            const { cart } = await res.json();
+            sessionStorage.setItem('cart', JSON.stringify(cart));
+            alert("Item added to your cart!");
+            window.location.reload();
+        } catch (err) { console.error(err) };
+    }
+
+    // TODO: add review function
+    const addReview = () => {}
+    
     return (
         <>
             <AppCategories />
 
-            <section style={productStyles}>
+            { product && <section style={productStyles}>
                 <section style={{...sectionStyles, ...leftStyles}}>
-                    <img src={image} style={imgStyles} />
+                    <img src={src} style={imgStyles} />
                     <title style={titleStyles}>
-                        <h2 style={{textTransform:'capitalize'}}>{ username }</h2>
+                        <h2 style={{textTransform:'capitalize'}}>{ product.user.username }</h2>
                     </title>
                 </section>
 
                 <section style={{...sectionStyles, ...rightStyles}}>
                     <div style={infoStyles}>
                         <title style={{...titleStyles, ...rightTitleStyles}}>
-                            <h2>{ name }</h2>
-                            <h3 style={h3Styles}>${ price }</h3>
+                            <h2>{ product.name }</h2>
+                            <h3 style={h3Styles}>${ product.price }</h3>
                         </title>
 
-                        <span style={callToActionStyles}>
-                            <HeartIcon onClick={() => toggleLiked(!liked)} id="heart" style={!loggedIn? {display:'none'} : liked? {...heartStyles, fill:'red'} : heartStyles} />
-                            <button id="addToCart" style={loggedIn? addToCartStyles : {...addToCartStyles, ...disabledStyles}}>Add to Cart</button> 
-                        </span>
+                        <ProductButtons productId={productId} liked={liked} toggleLiked={toggleLiked} addToCart={addToCart} />
 
                         <span style={spanStyles}>
                             <h2>Category</h2>
-                            <h3 style={h3Styles}>{ category }</h3>
+                            <h3 style={h3Styles}>{ product.category }</h3>
                         </span>
                         
                         <span style={spanStyles}>
                             <h2>Description</h2>
-                            <h3 style={{...h3Styles, ...descH3Styles}}>{ desc }</h3>
+                            <h3 style={{...h3Styles, ...descH3Styles}}>{ product.desc }</h3>
                         </span>
                     </div>
 
-                    <div style={reviewsStyles}>
-                        <h3 style={reviewsH3Styles}>Reviews</h3>
-                        <hr style={hrStyles} />
-                        { productReviews }
-                    </div>
+                    <ProductReviews reviews={reviews} />
                 </section>
-            </section>
+            </section> }
         </>
     )
-}
-
-Product.propTypes = { 
-    loggedIn: bool.isRequired,
-    likedItems: array.isRequired,
-    products: array.isRequired
-}
-
-Product.defaultProps = {
-    loggedIn: false
 }
 
 export default Product
