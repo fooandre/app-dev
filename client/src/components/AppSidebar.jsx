@@ -1,28 +1,29 @@
-import { HeartIcon, HomeIcon, KeyIcon, UserCircleIcon } from '@heroicons/react/outline';
+import { ChartSquareBarIcon, ClipboardListIcon, CreditCardIcon, HeartIcon, LoginIcon, LogoutIcon, ShoppingBagIcon, ShoppingCartIcon } from '@heroicons/react/outline';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import AppLiked from './AppLiked';
 
+
 const navStyles = {
-    backgroundColor: '#3f4248',
-    boxShadow: '1px 0 2px 0 black',
+    backgroundColor: '#494b52',
     height: '100vh',
-    width: '5vw',
     position: 'fixed',
     display: 'flex',
     flexDirection: 'column',
+    gap: '2vh',
     overflow: 'visible',
+    padding: '1vh 0.5vw',
     zIndex: '10'
 }
 
 const aStyles = {
     borderRadius: '10px',
-    height: '5vw',
-    width: '5vw',
+    width: '2.5vw',
+    aspectRatio: '1',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    cursor: 'pointer'
+    cursor: 'pointer',
 }
 
 const svgStyles = {
@@ -34,12 +35,25 @@ const AppSidebar = () => {
     const loggedIn = "userId" in sessionStorage;
 
     let [ showLiked, toggleLiked ] = useState(false);
+
+    const logout = () => {
+        sessionStorage.clear();
+        try { fetch("/api/logout") } catch (err) { console.error(err) };
+        window.location.reload();
+    };
     
-    let icons = {
-        "Shop": <HomeIcon style={svgStyles} />,
-        "User": <UserCircleIcon style={svgStyles} />,
-        "Liked": <HeartIcon style={svgStyles} />,
-        "Admin": <KeyIcon style={svgStyles} />
+    let icons = { "Login": <LoginIcon style={svgStyles} /> }
+
+    if (loggedIn) {
+        icons = {
+            "Cart": <ShoppingBagIcon style={svgStyles} />,
+            "Liked": <HeartIcon style={svgStyles} />,
+            "Purchases": <CreditCardIcon style={svgStyles} />,
+            "Orders": <ClipboardListIcon style={svgStyles} />,
+            "Analytics": <ChartSquareBarIcon style={svgStyles} />,
+            "Inventory": <ShoppingCartIcon style={svgStyles} />,
+            "Logout": <LogoutIcon style={svgStyles} />,
+        }
     }
 
     let content = [];
@@ -50,10 +64,18 @@ const AppSidebar = () => {
         let item;
 
         if (icon == "Liked") {
-            if (!loggedIn) continue;
-
             item = <li key={icon}>
                         <a style={aStyles} onClick={() => toggleLiked(showLiked = !showLiked)}>{icons[icon]}</a>
+                        <dialog>{ icon }</dialog>
+                    </li>
+        } else if (icon == "Login") {
+            item = <li key={icon}>
+                        <Link style={aStyles} to="auth">{icons[icon]}</Link>
+                        <dialog>{ icon }</dialog>
+                    </li>
+        } else if (icon == "Logout") {
+            item = <li key={icon}>
+                        <a style={aStyles} onClick={logout}>{icons[icon]}</a>
                         <dialog>{ icon }</dialog>
                     </li>
         } else {

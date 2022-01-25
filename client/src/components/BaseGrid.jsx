@@ -1,12 +1,11 @@
 import { number } from 'prop-types';
 
-// TODO: remove rowLength and implement dynamic gridTemplateColumns
+// TODO: remove rowLength and implement dynamic gridTemplateColumns (maybe)
 
 const AppGrid = ({ rowLength, children }) => {
     const gridStyles = {
         display: 'grid',
         gridTemplateColumns:`repeat(${rowLength}, 1fr)`,
-        gridGap: '1vh'
     }
 
     return <div style={gridStyles}>{ children }</div>

@@ -58,7 +58,9 @@ const descH3Styles = {
 const imgStyles = {
     borderRadius: '5px',
     width: '20vw',
-    height: '20vw'
+    height: '20vw',
+    objectFit: 'cover',
+    objectPosition: '50% 50%'
 }
 
 const infoStyles = {

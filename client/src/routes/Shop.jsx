@@ -17,7 +17,7 @@ const Shop = () => {
     return (
         <>
             <AppCategories showIcons={true} />
-            { content.length == 0? <h1>No products to show</h1> : <BaseGrid rowLength={5}>{ content }</BaseGrid> }
+            { content.length == 0? <h1>No products to show</h1> : <BaseGrid rowLength={4}>{ content }</BaseGrid> }
         </>
     )
 }

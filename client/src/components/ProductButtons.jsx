@@ -11,13 +11,6 @@ const callToActionStyles = {
   gap: '1vw'
 }
 
-const heartStyles = {
-  borderRadius: '5px',
-  color: 'red',
-  height: '4vh',
-  margin: '1px'
-}
-
 const counterStyles = {
   border: '1px solid red',
   borderRadius: '10px',
@@ -25,16 +18,6 @@ const counterStyles = {
   alignItems: 'center',
   gap: '1vw',
   padding: '1vh 1vw'
-}
-
-const addToCartStyles = {
-  backgroundColor: 'red',
-  color: 'white',
-  display: 'flex',
-  alignItems: 'center',
-  gap: '1vh',
-  fontSize: '0.8rem',
-  fontWeight: '700'
 }
 
 const disabledStyles = {
@@ -52,9 +35,9 @@ const ProductButtons = ({ productId, liked, toggleLiked, addToCart }) => {
 
     return (
       <span style={callToActionStyles}>
-        <HeartIcon onClick={toggleLiked} id="heart" style={liked? {...heartStyles, fill:'red'} : heartStyles} />
-        { inCart && <button style={{...addToCartStyles, ...disabledStyles}}>Item in cart</button> }
-        { inCart || <button onClick={addToCart} style={addToCartStyles}>Add to Cart <ShoppingCartIcon style={{height: '3vh'}} /></button> }
+        <HeartIcon onClick={toggleLiked} id="heart" style={liked? {fill: 'red'} : {}} />
+        { inCart && <button id="add-to-cart" style={disabledStyles}>Item in cart</button> }
+        { inCart || <button id="add-to-cart" onClick={addToCart}>Add to Cart <ShoppingCartIcon /></button> }
       </span>
     )
   }

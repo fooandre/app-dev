@@ -1,5 +1,5 @@
 @api = http://localhost:5000/api
-@userId = "61ebbd261498e82cb276bb96"
+@userId = "61e932fa30db6b1dfdc953d5"
 
 # POST {{api}}/login
 # content-type: application/json
@@ -9,9 +9,15 @@
 #     "password": "123456"
 # }
 
-POST {{api}}/purchase
+POST {{api}}/product
 content-type: application/json
 
 {
-    "userId": {{userId}}
+    "userId": {{userId}},
+    "products": [
+        {        
+            "id": "61e9367e30db6b1dfdc953db",
+            "qty": 1
+        }
+    ]
 }

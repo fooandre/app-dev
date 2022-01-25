@@ -55,7 +55,7 @@ const AppLiked = ({ close }) => {
                     <XCircleIcon onClick={close} style={svgStyles} />
                 </span>
 
-                { content.length == 0? <span>No products to display, like some products to get started!</span> : <BaseGrid rowLength={4}>{ content }</BaseGrid> }
+                { content.length == 0? <span>No products to display, like some products to get started!</span> : <BaseGrid rowLength={3}>{ content }</BaseGrid> }
             </dialog>
 
             <div onClick={close} style={backgroundStyles} />

@@ -4,27 +4,23 @@ import { Link } from 'react-router-dom';
 
 const figureStyles = {
     borderRadius: '5px',
-    width: '17vw',
+    width: 'fit-content',
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'space-between',
     gap: '1vh',
-    padding: '1vh 1vw',
-    margin: '2px'
-}
-
-const figcaptionStyles = {
-    display: 'flex',
-    alignItems: 'flex-start',
-    justifyContent: 'space-between'
+    cursor: 'pointer',
+    padding: '2vh 1vw',
+    margin: '6px'
 }
 
 const imgStyles = {
     borderRadius: '5px',
-    width: '15vw',
-    height: '15vw'
+    width: '20vw',
+    aspectRatio: '4/3',
+    objectFit: 'cover',
+    objectPosition: '50% 50%'
 }
-
 
 const BaseProduct = ({ product, closeLiked }) => {
     const { id, name, price, img: image } = product;
@@ -39,12 +35,13 @@ const BaseProduct = ({ product, closeLiked }) => {
     return (
         <Link to={`/product/${id}`} onClick={closeLiked}>
             <figure style={figureStyles}>
-                <figcaption style={figcaptionStyles}>
-                    <h4>{ name }</h4>
-                    <h3>${ price }</h3>
+                <img src={src} style={imgStyles} />
+                
+                <figcaption>
+                    <h4 style={{fontWeight: '500'}}>{ name }</h4>
+                    <h3>${ price.toFixed(2) }</h3>
                 </figcaption>            
                 
-                <img src={src} style={imgStyles} />
             </figure>
         </Link>
     )

@@ -98,7 +98,7 @@ const Auth = () => {
 
             <span style={spanStyles}>
                 <h3 id="switch" onClick={ action == 'login'? () => toggleAction('signup') : () => toggleAction('login')} style={{fontWeight:'100', cursor: 'pointer'}}>{ action == "login"? 'New? Sign up here' : 'Back to login' }</h3>
-                <button onClick={action == 'login'? login : signup} style={buttonStyles}>{ action } <ArrowRightIcon style={{height:'3vh'}} /></button>
+                <button onClick={action == 'login'? login : signup} style={buttonStyles}>{ action } <ArrowRightIcon /></button>
             </span>
         </form>
     )

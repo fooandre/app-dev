@@ -1,47 +1,62 @@
-import { ExclamationIcon } from '@heroicons/react/outline';
-import UserCartRow from './UserCartRow';
+import { ExclamationIcon, LogoutIcon } from '@heroicons/react/outline';
+import BaseTable from '../components/BaseTable';
+import CartRow from '../components/CartRow';
 
-const divStyles = {
-    width: 'fit-content',
+const sectionStyles = {
+    width: '91vw',
     display: 'flex',
-    alignItems: 'center',
     flexDirection: 'column',
-    gap: '2vh',
-    padding: '2vh 2vw',
-    marginBottom: '3vh'
+    gap: '2vh'
 }
 
-const clearCartStyles = {
-    backgroundColor: 'red',
-    color: 'white',
+const divStyles = {
+    width: 'inherit',
     position: 'absolute',
-    top: '7vh',
-    right: '5vw',
+    bottom: '3vh',
     display: 'flex',
-    alignItems: 'center',
-    gap: '1vh',
-    fontSize: '0.8rem',
-    fontWeight: '700',
+    alignItems: 'flex-end',
+    justifyContent: 'space-between'
 }
 
 const spanStyles = {
-    width: '70vw',
+    width: 'fit-content',
     display: 'flex',
     alignItems: 'flex-end',
-    justifyContent: 'space-between',
+    gap: '1vw'
 }
 
-const checkoutStyles = {
-    backgroundColor: 'yellowgreen',
+const clearCartStyles = {
+    border: 'none',
+    backgroundColor: 'red',
     color: 'white',
+    display: 'flex',
+    alignItems: 'center',
+    gap: '1vh',
+    fontSize: '0.7rem',
     fontWeight: '700'
 }
 
-const UserCart = () => {
+const checkoutStyles = {
+    border: 'none',
+    backgroundColor: 'green',
+    color: 'white',
+    display: 'flex',
+    alignItems: 'center',
+    gap: '1vh',
+    fontSize: '0.7rem',
+    fontWeight: '700'
+}
+
+const Cart = () => {
     const cart = JSON.parse(sessionStorage.getItem("cart"));
     const user = JSON.parse(sessionStorage.getItem("userId"));
     
-    if ( cart.length === 0) return <div styles={divStyles}>Your cart is empty, add some items to view them!</div>
+    if ( cart.length === 0) return (
+        <section style={sectionStyles}>
+            <h3 style={{color: 'rgb(63, 66, 72)'}}>Items in cart&#58;</h3>
+            <span>Your cart is empty, add some items to view them!</span>
+        </section>
+    )
 
     let content = [];
     let total = 0;
@@ -87,7 +102,7 @@ const UserCart = () => {
             } catch (err) { console.error(err) };
         }
 
-        content.push(<UserCartRow key={product.id} product={product} updateCart={updateCart} removeFromCart={removeFromCart} />);
+        content.push(<CartRow key={product.id} product={product} updateCart={updateCart} removeFromCart={removeFromCart} />);
         total += product.price * product.qty;
     }
 
@@ -125,31 +140,21 @@ const UserCart = () => {
     }
     
     return (
-        <>
-            <div style={divStyles}>
-                <h3 style={{color: 'rgb(63, 66, 72)'}}>Items in cart&#58;</h3>
-                
-                <table>
-                    <thead>
-                    <tr>
-                        <td>Product name</td>
-                        <td>Price ($)</td>
-                        <td>Quantity</td>
-                        <td></td>
-                    </tr>
-                    </thead>
-                    <tbody>{ content }</tbody>
-                </table>
-            </div>
-
-            <button onClick={clearCart} style={clearCartStyles}>Clear cart<ExclamationIcon style={{height: '3vh'}} /></button>
+        <section style={sectionStyles}>
+            <h3 style={{color: 'rgb(63, 66, 72)'}}>Items in cart&#58;</h3>
             
-            <span style={spanStyles}>
-                <h2>Total: ${ +total.toFixed(2) }0</h2>
-                <button onClick={checkout} style={checkoutStyles}>Checkout!</button>
-            </span>
-        </>
+            <BaseTable columns={["Product name", "Price", "Quantity", ""]}>{ content }</BaseTable>
+            
+            <div style={divStyles}>
+                <h2>Total: ${ total.toFixed(2) }</h2>
+                
+                <span style={spanStyles}>
+                    <button onClick={clearCart} style={clearCartStyles}>Clear cart<ExclamationIcon /></button>
+                    <button onClick={checkout} style={checkoutStyles}>Checkout!<LogoutIcon /></button>
+                </span>
+            </div>
+        </section>
     )
 }
 
-export default UserCart
+export default Cart

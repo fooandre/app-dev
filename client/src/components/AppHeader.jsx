@@ -1,23 +1,39 @@
+import { SearchIcon } from '@heroicons/react/outline';
 import { Link, useNavigate } from 'react-router-dom';
 
 const headerStyles = {
-    height: '7vh',
+    backgroundColor: '#34363b',
+    boxShadow: '0 1px 2px 0 black',
+    color: 'white',
+    height: 'inherit',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'space-between',
-    margin: '0 0 1vh 5vw',
-    padding: '0 2.5vw'
+    padding: '1vh 1vw'
 }
 
 const aStyles = {
-    color: '#000',
     fontWeight: '700',
     fontSize: '2rem',
     textDecoration: 'none'
 }
 
+const spanStyles = {
+    position: 'relative',
+    display: 'flex',
+    alignItems: 'center'
+}
+
 const searchbarStyles = {
-    width: '20vw'
+    borderRadius: '5px',
+    color: 'white',
+    width: '20vw',
+}
+
+const svgStyles = {
+    color: 'rgba(255, 255, 255, 0.5)',
+    position: 'absolute',
+    right: '1vw'
 }
 
 const AppHeader = () => {
@@ -39,9 +55,12 @@ const AppHeader = () => {
 
     return (
         <header style={headerStyles}>
-            <Link style={aStyles} to="/">NACHD</Link>
-            <input style={searchbarStyles} id="searchbar" type="text" placeholder="Press &quot;/&quot; to focus" />
-            <button onClick={loggedIn? logout : login}>{ loggedIn? "Logout" : "Login" }</button>
+            <Link style={aStyles} to="/">N</Link>
+            <span style={spanStyles}>
+                <input style={searchbarStyles} id="searchbar" type="text" placeholder="Press &quot;/&quot; to focus" />
+                <SearchIcon style={svgStyles} />
+            </span>
+            <button id="headerBtn" onClick={loggedIn? logout : login}>{ loggedIn? "Logout" : "Login" }</button>
         </header>
     )
 }

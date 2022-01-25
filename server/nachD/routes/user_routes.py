@@ -286,7 +286,7 @@ def get_user():
                     if not str(prod_order.merchant.id) == userId: # if the seller Id is not the merchant in the order, means he does not owns that product, so skip. 
                         # Then skip those ordered products that those not belong to the merchant
                         continue
-                    if order.product == None:
+                    if prod_order.product == None:
                         obj["products"].append({
                             "name":"Deleted product",
                             "qty":prod_order.qty,
@@ -586,6 +586,49 @@ def update_cart():
             "success": False,
             "message": "Please log in first."
         }
+
+@app.route('/api/topRanking',methods = ["POST"])
+def top_rankings():
+    data = request.get_json()
+    if "user" in session and session.get("user") == data["userId"]:
+        userId = session["user"]
+        # allRevs = []
+        prods = []
+
+        try:
+            user = User.objects(id=userId).get()
+            # first product is in top
+            for prod in user.products:
+                sales = prod.qty_sold * prod.price
+                prods.append({
+                    "prod":prod,
+                    "sales":sales
+                })
+
+            prods.sort(key=lambda x:x["sales"], reverse=True)
+            totalRevenue = 0
+            products = []
+
+            for index in range(3):
+                theProduct = prods[index]
+                totalRevenue += theProduct["sales"]
+                products.append({
+                    "productName":theProduct["prod"]["name"],
+                    "productId":str(theProduct["prod"]["id"]),
+                    "revenue":theProduct["sales"]
+                })
+
+            return {
+                "success":True,
+                "totalRevenue":totalRevenue,
+                "products":products,
+            }
+        except:
+            print(traceback.format_exc())
+            return {
+                "success":False,
+                "message":"Error occurred while retrieving sales. Please try again."
+            }
 
 @app.route("/api/logout", methods = ["post"])
 def logout():

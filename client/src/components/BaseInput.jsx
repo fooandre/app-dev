@@ -1,4 +1,6 @@
+import { EyeIcon, EyeOffIcon } from "@heroicons/react/outline";
 import { bool, string } from "prop-types";
+import { useState } from 'react';
 
 const labelStyles = {
     backgroundColor: '#3F4248',
@@ -15,10 +17,28 @@ const labelStyles = {
 
 const inputStyles = {
     borderRadius: '0 5px 5px 0',
-    width: '20vw',
+    width: '20vw'
 }
 
-const BaseInput = ({ type, field, hide }) => {
+const toggleStyles = {
+    color: 'black',
+    position: 'absolute',
+    right: '1vw',
+    cursor: 'pointer'
+}
+
+const BaseInput = ({ field, type, hide }) => {
+    let [ hidePassword, setHide ] = useState(true);
+
+    if (field == "password") return (
+        <label style={hide? {display:'none'} : labelStyles}>
+            { field }
+            <input type={type} id={field} name={field} style={field == "password" && hidePassword? {webkitTextSecurity: 'disc', ...inputStyles} : inputStyles} autoComplete="off" />
+            { hidePassword && <EyeOffIcon onClick={() => setHide(false)} style={toggleStyles} /> }
+            { hidePassword || <EyeIcon onClick={() => setHide(true)} style={toggleStyles} /> }
+        </label>
+    )
+
     return (
         <label style={hide? {display:'none'} : labelStyles}>
             { field }
@@ -28,8 +48,8 @@ const BaseInput = ({ type, field, hide }) => {
 }
 
 BaseInput.propTypes = {
-    type: string.isRequired,
     field: string.isRequired,
+    type: string,
     hide: bool
 }
 

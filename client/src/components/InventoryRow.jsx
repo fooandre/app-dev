@@ -1,5 +1,6 @@
 import { BanIcon, DotsHorizontalIcon, MinusCircleIcon, PlusCircleIcon } from '@heroicons/react/outline';
 import { object } from 'prop-types';
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 
 const buttonStyles = {
@@ -8,7 +9,9 @@ const buttonStyles = {
     marginLeft: '1vh'
 }
 
-const AdminInventoryRow = ({ product: { id, name, price, qty }, updateQty, deleteProduct  }) => {
+const InventoryRow = ({ product: { id, name, price, qty }, updateQty, deleteProduct  }) => {
+    let [ update, setUpdate ] = useState([]);
+
     return (
         <tr>
             <td style={{paddingLeft: '1vw', cursor: 'pointer'}}><Link to={`/product/${id}`}>{ name }</Link></td>
@@ -24,8 +27,8 @@ const AdminInventoryRow = ({ product: { id, name, price, qty }, updateQty, delet
       )
 };
 
-AdminInventoryRow.propTypes = {
+InventoryRow.propTypes = {
     product: object.isRequired
 };
 
-export default AdminInventoryRow;
+export default InventoryRow;
