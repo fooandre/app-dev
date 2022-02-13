@@ -2,6 +2,7 @@ import datetime
 import traceback
 from cmath import log
 from inspect import trace
+from xml.dom.expatbuilder import parseString
 
 import mongoengine
 from flask import jsonify, redirect, request, session, url_for
@@ -121,6 +122,7 @@ def addToLikedProducts(productId, userID):
     user.likedProducts.append(product)
     print(user.likedProducts)
     user.save()
+    user = User.objects(id=userID).get()
     return user
 
 def removeFromLiked(productId, UserID):
@@ -178,12 +180,15 @@ def addToLiked():
                 if isUser:
                     likedProducts = []
                     for likedProduct in isUser.likedProducts:
-                        likedProducts.append({
-                            "id":str(likedProduct.id),
-                            "name":likedProduct.name,
-                            "price":likedProduct.price,
-                            "img": likedProduct.img
-                        })
+                        try:
+                            likedProducts.append({
+                                "id":str(likedProduct.id),
+                                "name":likedProduct.name,
+                                "price":likedProduct.price,
+                                "img": likedProduct.img
+                            })
+                        except:
+                            pass
                     return {
                         "success": True,
                         "likedProducts": likedProducts
@@ -191,19 +196,22 @@ def addToLiked():
                 else:
                     return {
                         "success":False,
-                        "message":"Already in liked products."
+                        "message":"Product is already in your liked products."
                     }
             elif request.method == "PATCH":
                 isUser = removeFromLiked(data["productId"], userID)
                 if isUser:
                     likedProducts = []
                     for likedProduct in isUser.likedProducts:
-                        likedProducts.append({
-                            "id":str(likedProduct.id),
-                            "name":likedProduct.name,
-                            "price":likedProduct.price,
-                            "img": likedProduct.img
-                        })
+                        try:
+                            likedProducts.append({
+                                "id":str(likedProduct.id),
+                                "name":likedProduct.name,
+                                "price":likedProduct.price,
+                                "img": likedProduct.img
+                            })
+                        except:
+                            pass
                     return {
                         "success": True,
                         "likedProducts": likedProducts
@@ -328,17 +336,20 @@ def get_user():
                     "category":eachProduct["category"].value,
                 })
             for eachLikedProducts in user.likedProducts:
-                likedProducts.append({
-                    "id":str(eachLikedProducts["id"]),
-                    "name":eachLikedProducts["name"],
-                    "price":eachLikedProducts["price"],
-                    "desc": eachLikedProducts["desc"],
-                    "img":eachLikedProducts["img"],
-                    "user":{
-                        "userId":str(eachLikedProducts["user"]["id"]), 
-                        "username":eachLikedProducts["user"]["username"]
-                    }
-                })
+                try:
+                    likedProducts.append({
+                        "id":str(eachLikedProducts["id"]),
+                        "name":eachLikedProducts["name"],
+                        "price":eachLikedProducts["price"],
+                        "desc": eachLikedProducts["desc"],
+                        "img":eachLikedProducts["img"],
+                        "user":{
+                            "userId":str(eachLikedProducts["user"]["id"]), 
+                            "username":eachLikedProducts["user"]["username"]
+                        }
+                    })
+                except:
+                    pass
             for eachCartItem in user.cart:
                 try:
                     cartItem = Product.objects(id=eachCartItem["productId"]).get()
@@ -537,21 +548,21 @@ def top_rankings():
         try:
             user = User.objects(id=userId).get()
             # first product is in top
+            totalRevenue = 0
             for prod in user.products:
                 sales = prod.qty_sold * prod.price
+                totalRevenue += sales
                 prods.append({
                     "prod":prod,
                     "sales":sales
                 })
 
             prods.sort(key=lambda x:x["sales"], reverse=True)
-            totalRevenue = 0
             products = []
             print(len(user.products))
             if len(user.products) >= 3:
                 for index in range(3):
                     theProduct = prods[index]
-                    totalRevenue += theProduct["sales"]
                     products.append({
                         "productName":theProduct["prod"]["name"],
                         "productId":str(theProduct["prod"]["id"]),
@@ -560,7 +571,6 @@ def top_rankings():
             else:
                 for index in range(len(user.products)):
                     theProduct = prods[index]
-                    totalRevenue += theProduct["sales"]
                     products.append({
                         "productName":theProduct["prod"]["name"],
                         "productId":str(theProduct["prod"]["id"]),

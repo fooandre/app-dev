@@ -413,3 +413,55 @@ def purchaser_order(order_id):
 				"success":False,
 				"message":"Error while getting order! Please try again."
 		}, 404
+
+@app.route('/api/purchase/all', methods=['post'])
+def get_all_purchases():
+	userId = session.get("user")
+	data = request.get_json()
+	# Login first before seeing placed order
+	if userId != data["userId"]:   
+		# Not logged in
+		return {
+				"success": False,
+				"message": "Please login first."
+		}
+
+	user = User.objects(id=userId).get()
+	purchases = []
+
+	for ord in user.purchases:
+		obj = {
+			"orderId": str(ord.id),
+			"products":[]
+		}
+		for order in ord.products:
+			if order.product == None:
+				obj["products"].append({
+					"name":"Deleted product",
+					"qty":order.qty,
+					"status":order.status.value,
+				})
+			else:
+				obj["products"].append({
+					"id":str(order.product["id"]),
+					"name":order.product["name"],
+					"price":order.product["price"],
+					"qty":order.qty,
+					"status":order.status.value,
+					"img":order.product["img"],
+					"status":order.status.value,
+					"orderId":str(ord.id),
+					"category":order.product["category"].value,
+					"date_ordered":datetime.datetime.strftime(order.date_ordered, "%d/%m/%Y"),
+					"user":{
+						"userId":str(order.product["user"]["id"]), 
+						"username":order.product["user"]["username"]
+					}          
+				})
+				
+		purchases.append(obj)
+
+	return {
+		"success": True,
+		"purchases": purchases
+	}

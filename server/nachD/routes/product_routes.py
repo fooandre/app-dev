@@ -42,12 +42,13 @@ def delete_product(userId: str, productId: str):
 
 
 def save_image(prod, data):
+    print(data.files)
     pic_file = data.files.get('picture')
 
-    # if pic_file.filename:
-    #     fn, ext = os.path.splitext(pic_file.filename)
-    if pic_file:
-        fn, ext = os.path.splitext(pic_file)
+    # if pic_file:
+    #     fn, ext = os.path.splitext(pic_file)
+    if pic_file.filename:
+        fn, ext = os.path.splitext(pic_file.filename)
         ext = ext.lower()
         if ext in ['.jpg', '.png', '.jpeg']:
             print(ext)
@@ -72,8 +73,7 @@ def add_product(request, user):
     product = Product()
     prod = save_image(product, data)
 
-    # data = data.form.to_dict()
-    data = data.get_json()
+    data = data.form.to_dict()
     prod.name = data["name"]
     prod.price = float(data["price"])
     prod.user = user
@@ -86,7 +86,9 @@ def add_product(request, user):
     user.products.append(prod)
     user.save()
 
-    return True
+    userId = user.id
+    user = User.objects(id=userId).get()
+    return user
     # else:
     #   raise NotMerchant("You do not have permission to add a product.")
 
@@ -106,20 +108,20 @@ def replace_image(prod, image_data):
 
 def update_product(request, userId):
     image_data = request
-    data = request.get_json()
+    data = request.form.to_dict()
     # first check if the merchant owns the product, then only update the product.
     prod_id = data["productId"]
     product = Product.objects(id=prod_id).get()
     if str(product.user.id) == userId:
         prod = replace_image(product, image_data)
-        prod.name = data["name"] if data["name"] != None else product.name
-        prod.price = float(data["price"]) if data["price"] != None else product.price
-        prod.desc = data["desc"] if data["desc"] != None else product.desc
-        # prod.qty = int(data["qty"]) if data["qty"] != None else product.qty
-        prod.category = data["category"] if data["category"] != None else product.category
+        prod.name = data["name"]
+        prod.price = float(data["price"])
+        prod.desc = data["desc"]
+        prod.category = data["category"]
         prod.save()
 
-        return prod
+        user = User.objects(id=userId).get()
+        return user
     else:
         raise WrongOwner("You do not have permission to update the product.")
 
@@ -269,38 +271,45 @@ def product_route():
         if request.method == "POST":
             user = User.objects(id=userId).get()
             # Find the user first, then add product
-            if add_product(request, user):
-                products = []
+            user = add_product(request, user)
+            products = []
 
-                for prod in user.products:
-                    products.append({
-                        "id":str(prod.id),
-                        "name":prod.name,
-                        "price":prod.price,
-                        "qty":prod.qty,
-                        "desc": prod.desc,
-                        "category": prod.category.value
-                    })
+            for prod in user.products:
+                products.append({
+                    "id":str(prod.id),
+                    "name":prod.name,
+                    "price":prod.price,
+                    "qty":prod.qty,
+                    "desc": prod.desc,
+                    "category": prod.category.value,
+                    "img": prod.img
+                })
 
-                return {
-                    "success": True,
-                    "products": products
-                }
+            return {
+                "success": True,
+                "products": products
+            }
 
         # Update the products with product id
         elif request.method == "PATCH":
 
-            prod = update_product(request, userId)
+            user = update_product(request, userId)
+            products = []
+
+            for prod in user.products:
+                products.append({
+                    "id":str(prod.id),
+                    "name":prod.name,
+                    "price":prod.price,
+                    "qty":prod.qty,
+                    "desc": prod.desc,
+                    "category": prod.category.value,
+                    "img": prod.img
+                })
+
             return {
                 "success": True,
-                "id": str(prod["id"]),
-                "name": prod["name"],
-                "price": prod["price"],
-                "desc": prod["desc"],
-                "qty": prod["qty"],
-                "img": prod["img"],
-                "category":prod["category"].value,
-                "userId": str(prod["user"]["id"])
+                "products": products
             }
     except IncorrectPicFormat as e:
         return {
@@ -428,7 +437,7 @@ def review_product(product_id):
 @app.route("/api/product/all")
 def get_all_products():
     try:
-        all_products = Product.objects[:20]
+        all_products = Product.objects.all()
         products = []
 
         for eachProduct in all_products:
@@ -465,3 +474,34 @@ def get_all_products():
             "success": False,
             "message": "Error retrieving products."
         }
+
+@app.route('/api/allProducts', methods=['post'])
+def get_users_products():
+    userId = session.get("user")
+    data = request.get_json()
+
+    if userId != data["userId"]:   
+        # Not logged in
+        return {
+            "success": False,
+            "message": "Please login first."
+        }
+
+    user = User.objects(id=userId).get()
+
+    products = []
+    for product in user.products:
+       products.append({
+            "id":str(product.id),
+            "name":product.name,
+            "price":product.price,
+            "qty":product.qty,
+            "desc": product.desc,
+            "category": product.category.value,
+            "img": product.img
+        })
+
+    return {
+        "success": True,
+        "products": products
+    }
