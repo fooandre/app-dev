@@ -1,47 +1,50 @@
 import { array } from 'prop-types';
+import { useState } from 'react';
+import ProductReview from './ProductReview';
 
 const reviewsStyles = {
-    width: 'inherit',
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'flex-start',
-    gap: '1vh'
-}
+  width: 'inherit',
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'flex-start',
+  gap: '1vh'
+};
 
 const reviewsH3Styles = {
-    fontWeight: '700'
-}
+  height: '3vh',
+  fontWeight: '700',
+  marginTop: '1vh'
+};
 
 const hrStyles = {
-    width: 'calc(85%)'
-}
-
-const addReviewStyles = {
-    fontSize: '0.75rem',
-    position: 'absolute',
-    right: '0'
-}
+  width: '100%'
+};
 
 const ProductReviews = ({ reviews }) => {
-    let renderReviews = [];
-    
-    for (const { id, ...review } of reviews) {;
-        if (renderReviews.length >= reviews.length) break;
-        renderReviews.push(<ProductReview key={id} review={review} />);
-    }
+  let [loggedIn, setLoggedIn] = useState('userId' in sessionStorage);
 
-    return (
-        <div style={reviewsStyles}>
-            <h3 style={reviewsH3Styles}>Reviews</h3>
-            <hr style={hrStyles} />
-            <button style={addReviewStyles}>Add review</button>
-            { renderReviews.length == 0? <h3>No reviews to display</h3> : renderReviews }
-        </div>
-    )
+  let renderReviews = [];
+
+  for (const review of reviews) {
+    if (renderReviews.length >= reviews.length) break;
+    renderReviews.push(<ProductReview key={renderReviews.length} review={review} />);
+  }
+
+  return (
+    <div style={reviewsStyles}>
+      <h3 style={reviewsH3Styles}>Reviews</h3>
+      <hr style={hrStyles} />
+      {renderReviews.length == 0 ? (
+        <h3 style={{ fontWeight: '300' }}>No reviews to display</h3>
+      ) : (
+        renderReviews
+      )}
+    </div>
+  );
 };
 
 ProductReviews.propTypes = {
-    reviews: array.isRequired
-}
+  reviews: array.isRequired
+};
 
 export default ProductReviews;

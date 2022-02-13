@@ -1,6 +1,7 @@
 import os
 import secrets
 import traceback
+from cmath import log
 
 import mongoengine
 from flask import current_app, redirect, request, session, url_for
@@ -37,14 +38,16 @@ def delete_product(userId: str, productId: str):
             prod.delete()
             user.products.remove(prod)
             user.save()
-            return True
+            return user
 
 
 def save_image(prod, data):
     pic_file = data.files.get('picture')
-    if pic_file.filename:
 
-        fn, ext = os.path.splitext(pic_file.filename)
+    # if pic_file.filename:
+    #     fn, ext = os.path.splitext(pic_file.filename)
+    if pic_file:
+        fn, ext = os.path.splitext(pic_file)
         ext = ext.lower()
         if ext in ['.jpg', '.png', '.jpeg']:
             print(ext)
@@ -69,7 +72,8 @@ def add_product(request, user):
     product = Product()
     prod = save_image(product, data)
 
-    data = data.form.to_dict()
+    # data = data.form.to_dict()
+    data = data.get_json()
     prod.name = data["name"]
     prod.price = float(data["price"])
     prod.user = user
@@ -82,7 +86,7 @@ def add_product(request, user):
     user.products.append(prod)
     user.save()
 
-    return prod
+    return True
     # else:
     #   raise NotMerchant("You do not have permission to add a product.")
 
@@ -102,18 +106,17 @@ def replace_image(prod, image_data):
 
 def update_product(request, userId):
     image_data = request
-    data = request.form.to_dict()
+    data = request.get_json()
     # first check if the merchant owns the product, then only update the product.
     prod_id = data["productId"]
     product = Product.objects(id=prod_id).get()
     if str(product.user.id) == userId:
         prod = replace_image(product, image_data)
-
-        product.name = data["name"]
-        prod.price = float(data["price"])
-        prod.desc = data["desc"]
-        prod.qty = int(data["qty"])
-        prod.category = data["category"]
+        prod.name = data["name"] if data["name"] != None else product.name
+        prod.price = float(data["price"]) if data["price"] != None else product.price
+        prod.desc = data["desc"] if data["desc"] != None else product.desc
+        # prod.qty = int(data["qty"]) if data["qty"] != None else product.qty
+        prod.category = data["category"] if data["category"] != None else product.category
         prod.save()
 
         return prod
@@ -160,6 +163,7 @@ def get_one_product(product_id):
             reviews.append({
                 "rating": review.rating,
                 "comment": review.comment,
+                "date_created": review.date_created,
                 "user": review.user.username if review.user else "Deleted User"
             })
 
@@ -193,15 +197,14 @@ def get_one_product(product_id):
         }, 404
 
 def update_quantity(list_product, userId):
-    state=True
+    allProducts = []
     for update_qty in list_product["products"]:
         prod = Product.objects(id=update_qty["id"]).get()
         if str(prod.user.id) == userId:
-            prod.qty += update_qty["qty"]
+            prod.qty = update_qty["qty"]
             prod.save()
-        else:
-            state= False
-    return state
+            allProducts.append(prod)
+    return allProducts
 
 @app.route("/api/product", methods=["post"])
 def update_products_qty():
@@ -209,17 +212,29 @@ def update_products_qty():
     
     data = request.get_json()
     try:
-        if "user" in session and userId != data["userId"]:   
+        if userId != data["userId"]:   
         # Not logged in
             return {
                 "success": False,
                 "message": "Please login first."
             }
             
-        isSuccess = update_quantity(data,userId)
-        if isSuccess:
+        listofProducts = update_quantity(data,userId)
+        user = User.objects(id=userId).get()
+        if listofProducts:
+            products=[]
+            for prod in user.products:
+                products.append({
+                    "id":str(prod.id),
+                    "name":prod.name,
+                    "price":prod.price,
+                    "qty":prod.qty,
+                    "desc": prod.desc,
+                    "category": prod.category.value
+                })
             return {
-                "success":True
+                "success":True,
+                "products":products
             }
         else:
            raise UpdateQuantityError("There was an error while updating quantity of some products.")
@@ -240,9 +255,11 @@ def update_products_qty():
 def product_route():
     try:
         userId = session.get("user")
-       
+
+        # data = request.get_json()
+        print(request.form.to_dict())
         data = request.form.to_dict()
-        if "user" in session and userId != data["userId"]:   
+        if userId != data["userId"]:
             # Not logged in
             return {
                 "success": False,
@@ -252,18 +269,23 @@ def product_route():
         if request.method == "POST":
             user = User.objects(id=userId).get()
             # Find the user first, then add product
-            prod = add_product(request, user)
-            return {
-                "success": True,
-                "id": str(prod["id"]),
-                "name": prod["name"],
-                "price": prod["price"],
-                "desc": prod["desc"],
-                "qty": prod["qty"],
-                "img": prod["img"],
-                "category":prod["category"].value,
-                "userId": str(prod["user"]["id"])
-            }
+            if add_product(request, user):
+                products = []
+
+                for prod in user.products:
+                    products.append({
+                        "id":str(prod.id),
+                        "name":prod.name,
+                        "price":prod.price,
+                        "qty":prod.qty,
+                        "desc": prod.desc,
+                        "category": prod.category.value
+                    })
+
+                return {
+                    "success": True,
+                    "products": products
+                }
 
         # Update the products with product id
         elif request.method == "PATCH":
@@ -311,7 +333,7 @@ def product_delete_route(product_id):
     # If the product Id exist in the array. Don't allow delete.
     userId = session.get("user")
     data = request.get_json()
-    if "user" in session and userId != data["userId"]:   
+    if userId != data["userId"]:   
         # Not logged in
         return {
             "success": False,
@@ -320,18 +342,28 @@ def product_delete_route(product_id):
     try:
         userId = session['user']
 
-        return_code = delete_product(userId, product_id)
-        if return_code:
+        isUser = delete_product(userId, product_id)
+        if isUser:
+            products=[]
+            for prod in isUser.products:
+                products.append({
+                    "id": str(prod.id),
+                    "name": prod["name"],
+                    "price": prod["price"],
+                    "desc": prod["desc"],
+                    "qty": prod["qty"],
+                    "img": prod["img"],
+                    "category":prod["category"].value,
+                    "user": {
+                        "userId": str(prod["user"]["id"]),
+                        "username": prod["user"]["username"]
+                    },
+                })
             return {
                 "success": True,
-                "message": "Product deleted."
+                "products": products
             }
 
-        # elif return_code == 2:
-        #     return {
-        #         "success":False,
-        #         "message": "Product could not be deleted as there are pending orders. Complete orders before deleting them."
-        #     }
         else:
             return {
                 "success": False,
@@ -349,7 +381,7 @@ def product_delete_route(product_id):
 def review_product(product_id):
     userId = session.get("user")
     data = request.get_json()
-    if "user" in session and userId != data["userId"]:   
+    if userId != data["userId"]:   
         # Not logged in
         return {
             "success": False,
@@ -384,6 +416,7 @@ def review_product(product_id):
             "success": True,
             "comment": feedback[0]["comment"],
             "rating": feedback[0]["rating"],
+            "date_created":feedback[0]["date_created"],
             "product": {
                 "productId": str(feedback[1]["id"]),
                 "name": feedback[1]["name"],

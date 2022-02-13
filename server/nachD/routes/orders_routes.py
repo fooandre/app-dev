@@ -108,24 +108,24 @@ def get_one_order(order_id, userId):
 
 def update_order_status(data, order_id, userId):
 	ord = Order.objects(id=order_id).get()
-	updated_orders = {}
+	
 
 	for order in ord.products:
 		# check if the logged in user(merchant) is the user himself and which product Id he wants to update
-		if str(order.product.user.id) == userId and str(order.product.id) == data["product"]:
+		print(str(order.merchant.id), userId, str(order.product.id), data["product"])
+		if str(order.merchant.id) == userId and str(order.product.id) == data["product"]:
 			if data["status"] == Status.COMPLETED.value:
 				order.status=Status.COMPLETED.value
 				order.completed=True
 				order.save()
-				updated_orders["order"] = order
-				break # because we only update one order's product's status per time
+				return order # because we only update one order's product's status per time
 			else:
+				print(data["status"])
 				order.status=data["status"]
+				order.completed=False
 				order.save()
-				updated_orders["order"] = order
-				break
-
-	return updated_orders
+				return order
+	return False	
 
 
 
@@ -137,7 +137,7 @@ def place_purchase():
 			userId = session.get("user")
 			data = request.get_json()
 			# Login first before placing order
-			if "user" in session and userId != data["userId"]:   
+			if userId != data["userId"]:   
 					# Not logged in
 					return {
 							"success": False,
@@ -157,6 +157,7 @@ def place_purchase():
 										"name":"Deleted product",
 										"qty":order.qty,
 										"status":order.status.value,
+										"date_ordered":datetime.datetime.strftime(order.date_ordered, "%d/%m/%Y")
 								})
 						else:
 								obj["products"].append({
@@ -193,6 +194,65 @@ def place_purchase():
 					"message":"Error while placing purchase order! Try again."
 			}
 
+@app.route('/api/order/all', methods=["Post"])
+def get_all_orders():
+	userId = session.get("user")
+	data = request.get_json()
+
+	if userId != data["userId"]:
+		# Not logged in
+		return {
+			"success": False,
+			"message": "Please login first."
+		}
+
+	user = User.objects(id=userId).get()
+	orders=[]
+	
+	for eachOrder in user.orders:
+		obj = {
+				"orderId": str(eachOrder.id),
+				"products":[]
+		}
+		for prod_order in eachOrder.products:
+				if not str(prod_order.merchant.id) == userId: # if the seller Id is not the merchant in the order, means he does not owns that product, so skip. 
+						# Then skip those ordered products that those not belong to the merchant
+						continue
+				if prod_order.product == None:
+						obj["products"].append({
+								"name":"Deleted product",
+								"qty":prod_order.qty,
+								"status":prod_order.status.value,
+								"purchaser": {
+									"address": prod_order.purchaser.address
+								},
+						})
+				else:
+						obj["products"].append({
+								"id":str(prod_order.product["id"]),
+								"name":prod_order.product["name"],
+								"price":prod_order.product["price"],
+								"qty": prod_order["qty"],
+								"img":prod_order.product["img"],
+								"status":prod_order.status.value,
+								"desc": prod_order.product["desc"],
+								"orderId": str(eachOrder.id),
+								"category":prod_order.product["category"].value,
+								"date_ordered":datetime.datetime.strftime(prod_order.date_ordered, "%d/%m/%Y"),
+								"purchaser": {
+									"address": prod_order.purchaser.address
+								},
+								"user":{
+										"userId":str(prod_order.product["user"]["id"]),
+										"username":prod_order.product["user"]["username"]
+								}
+						})
+		orders.append(obj)
+	return {
+		"success":True,
+		"orders":orders
+	}
+
 # look at seller's orders
 @app.route('/api/order/<order_id>', methods=["Post", "patch"])
 def seller_order(order_id):
@@ -201,7 +261,7 @@ def seller_order(order_id):
 		userId = session.get("user")
 		data = request.get_json()
 		# Login first before placing order
-		if "user" in session and userId != data["userId"]:   
+		if userId != data["userId"]:
 				# Not logged in
 				return {
 						"success": False,
@@ -217,14 +277,51 @@ def seller_order(order_id):
 		elif request.method == "PATCH":
 				data = request.get_json()
 				updated_order = update_order_status(data ,order_id=order_id, userId=userId)
+				user = User.objects(id=userId).get()
 				if updated_order: # if updated_order is not empty, means successfully updated one order's product
-					updated_order = updated_order["order"]
+					orders=[]
+					for eachOrder in user.orders:
+						obj = {
+								"orderId": str(eachOrder.id),
+								"products":[]
+						}
+						for prod_order in eachOrder.products:
+								if not str(prod_order.merchant.id) == userId: # if the seller Id is not the merchant in the order, means he does not owns that product, so skip. 
+										# Then skip those ordered products that those not belong to the merchant
+										continue
+								if prod_order.product == None:
+										obj["products"].append({
+												"name":"Deleted product",
+												"qty":prod_order.qty,
+												"status":prod_order.status.value,
+												"purchaser": {
+													"address": prod_order.purchaser.address
+												},
+										})
+								else:
+										obj["products"].append({
+												"id":str(prod_order.product["id"]),
+												"name":prod_order.product["name"],
+												"price":prod_order.product["price"],
+												"qty": prod_order["qty"],
+												"img":prod_order.product["img"],
+												"status":prod_order.status.value,
+												"desc": prod_order.product["desc"],
+												"orderId": str(eachOrder.id),
+												"category":prod_order.product["category"].value,
+												"date_ordered":datetime.datetime.strftime(prod_order.date_ordered, "%d/%m/%Y"),
+												"purchaser": {
+													"address": prod_order.purchaser.address
+												},
+												"user":{
+														"userId":str(prod_order.product["user"]["id"]),
+														"username":prod_order.product["user"]["username"]
+												}
+										})
+						orders.append(obj)
 					return {
-							"success":True,
-							"name":updated_order.product.name,
-							"status":updated_order.status.value,
-							"completed":updated_order.completed
-									
+						"success":True,
+						"orders":orders
 					}
 				else:
 						return {
@@ -238,6 +335,7 @@ def seller_order(order_id):
 				"message":"Order does not exist. Please check if order exist and try again."
 		}, 404
 	except mongoengine.ValidationError:
+			print(traceback.format_exc())
 			return {
 					"success":False,
 					"message":"Choose status only from the options."
@@ -285,7 +383,7 @@ def purchaser_order(order_id):
 		userId = session.get("user")
 		data = request.get_json()
 		# Login first before seeing placed order
-		if "user" in session and userId != data["userId"]:   
+		if userId != data["userId"]:   
 				# Not logged in
 				return {
 						"success": False,

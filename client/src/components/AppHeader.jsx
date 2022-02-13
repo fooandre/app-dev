@@ -1,68 +1,96 @@
 import { SearchIcon } from '@heroicons/react/outline';
-import { Link, useNavigate } from 'react-router-dom';
+import { useState } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 
 const headerStyles = {
-    backgroundColor: '#34363b',
-    boxShadow: '0 1px 2px 0 black',
-    color: 'white',
-    height: 'inherit',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    padding: '1vh 1vw'
-}
+  backgroundColor: '#34363b',
+  boxShadow: '0 1px 2px 0 black',
+  color: 'white',
+  width: '100vw',
+  position: 'fixed',
+  top: '0',
+  left: '0',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'space-between',
+  padding: '1vh 1vw',
+  zIndex: '30'
+};
 
 const aStyles = {
-    fontWeight: '700',
-    fontSize: '2rem',
-    textDecoration: 'none'
-}
+  fontWeight: '700',
+  fontSize: '2rem',
+  textDecoration: 'none'
+};
 
 const spanStyles = {
-    position: 'relative',
-    display: 'flex',
-    alignItems: 'center'
-}
+  position: 'relative',
+  display: 'flex',
+  alignItems: 'center'
+};
 
 const searchbarStyles = {
-    borderRadius: '5px',
-    color: 'white',
-    width: '20vw',
-}
-
-const svgStyles = {
-    color: 'rgba(255, 255, 255, 0.5)',
-    position: 'absolute',
-    right: '1vw'
-}
+  borderRadius: '5px',
+  color: 'white',
+  width: '20vw'
+};
 
 const AppHeader = () => {
-    const loggedIn = "userId" in sessionStorage;
+  const loggedIn = 'userId' in sessionStorage;
+  const inventory = JSON.parse(sessionStorage.getItem('products'));
 
-    const navigate = useNavigate();
+  let [query, updateQuery] = useState('');
+  const navigate = useNavigate();
 
-    const login = () => navigate('/auth');
+  const { pathname } = useLocation();
+  const showSearch =
+    pathname !== '/Orders' && pathname !== '/Analytics' && pathname !== '/Inventory';
 
-    const logout = () => {
-        sessionStorage.clear();
+  const search = () => {
+    if (query === null || query.trim() === '')
+      return alert('Search query cannot be an empty string.');
+    navigate('/search', { state: { query: query } });
+  };
 
-        try {
-            fetch("/api/logout");
-        } catch (err) { console.error(err) };
+  const login = () => navigate('/auth');
 
-        window.location.reload();
-    };
+  const logout = () => {
+    if (!confirm('logout?')) return;
+    sessionStorage.clear();
 
-    return (
-        <header style={headerStyles}>
-            <Link style={aStyles} to="/">N</Link>
-            <span style={spanStyles}>
-                <input style={searchbarStyles} id="searchbar" type="text" placeholder="Press &quot;/&quot; to focus" />
-                <SearchIcon style={svgStyles} />
-            </span>
-            <button id="headerBtn" onClick={loggedIn? logout : login}>{ loggedIn? "Logout" : "Login" }</button>
-        </header>
-    )
-}
+    try {
+      fetch('/api/logout');
+      window.location.reload();
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
-export default AppHeader
+  return (
+    <header style={headerStyles}>
+      <nav>
+        <Link id="logo" style={aStyles} to="/">
+          N
+        </Link>
+        <dialog>To shop</dialog>
+      </nav>
+      <span style={spanStyles}>
+        {showSearch && (
+          <input
+            onChange={({ target: { value } }) => updateQuery(value)}
+            style={searchbarStyles}
+            id="searchbar"
+            type="text"
+            placeholder='Press "/" to focus'
+          />
+        )}
+        {showSearch && <SearchIcon id="search-btn" onClick={search} />}
+      </span>
+      <button id="headerBtn" onClick={loggedIn ? logout : login}>
+        {loggedIn ? 'Logout' : 'Login'}
+      </button>
+    </header>
+  );
+};
+
+export default AppHeader;

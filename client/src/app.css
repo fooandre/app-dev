@@ -1,242 +1,326 @@
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,300;0,500;0,700;1,100&display=swap');
 
 * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: 'Montserrat', sans-serif;
-    overflow-x: hidden;
-    scroll-behavior: smooth;
-    transition: all 0.3s ease-out;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Montserrat', sans-serif;
+  overflow-x: hidden;
+  scroll-behavior: smooth;
+  transition: all 0.3s ease-out;
 }
 
 h1 {
-    font-size: 2rem;
+  font-size: 2rem;
 }
 
 h2 {
-    font-size: 1.5rem;
+  font-size: 1.5rem;
 }
 
 h3 {
-    font-size: 1rem;
+  font-size: 1rem;
 }
 
 h4 {
-    font-size: 0.75rem;
+  font-size: 0.75rem;
 }
 
 li {
-    list-style: none;
+  list-style: none;
 }
 
 a {
-    text-decoration: none;
-    color: inherit;
+  text-decoration: none;
+  color: inherit;
 }
 
 main {
-    position: relative;
-    min-height: 87vh;
-    height: fit-content;
-    margin-left: 3.5vw;
-    padding: 2vh 2vw;
+  position: relative;
+  min-height: 87vh;
+  height: fit-content;
+  margin: 7vh 0 1vh 3.5vw;
+  padding: 3vh 2vw;
 }
 
 /* Button */
 
 button {
-    border: 1px solid #6c7386;
-    border-radius: 5px;
-    background-color: rgba(0, 0, 0, 0);
-    box-shadow: 0 0 rgba(0, 0, 0, 0);
-    font-size: 1rem;
-    padding: 1vh 1vw;
+  border: 1px solid #6c7386;
+  border-radius: 5px;
+  background-color: rgba(0, 0, 0, 0);
+  box-shadow: 0 0 rgba(0, 0, 0, 0);
+  font-size: 1rem;
+  padding: 1vh 1vw;
 }
 
 button:hover,
 button:focus {
-    box-shadow: 1px 1px 1px #6c7386;
-    background-color: #6c7386;
-    color: #fff;
-    cursor: pointer;
-    font-weight: 500;
+  box-shadow: 1px 1px 1px #6c7386;
+  background-color: #6c7386;
+  color: #fff;
+  cursor: pointer;
+  font-weight: 500;
 }
 
-button:focus {
-    box-shadow: inset 1px 1px 2px black;
+button:active {
+  box-shadow: inset 1px 1px 2px black;
 }
 
 /* Input */
 
 input {
-    border: 1px solid black;
-    border-radius: 10vmin;
-    font-size: 0.9rem;
-    padding: 1vh 1vw;
+  border: 1px solid black;
+  border-radius: 10rem;
+  font-size: 0.9rem;
+  padding: 1vh 1vw;
 }
 
 input:focus,
 input:hover {
-    background-color: #f5f5f5;
-    box-shadow: 0 1px 2px #3f4248;
-    outline: none;
+  background-color: #f5f5f5;
+  box-shadow: 0 1px 2px #3f4248;
+  outline: none;
+}
+
+/* Header */
+
+#logo:hover {
+  color: rgba(255, 255, 255, 0.6);
 }
 
 #searchbar,
 #headerBtn {
-    background-color: rgba(255, 255, 255, 0.2);
-    border: none;
-    color: rgba(255, 255, 255, 0.7);
-    margin: 1px;
+  background-color: rgba(255, 255, 255, 0.2);
+  border: none;
+  color: rgba(255, 255, 255, 0.7);
+  margin: 1px;
 }
 
 #searchbar::placeholder {
-    color: rgba(255, 255, 255, 0.7);
+  color: rgba(255, 255, 255, 0.7);
 }
 
 #searchbar:focus,
 #headerBtn:hover {
-    outline: 1px solid whitesmoke;
-    background-color: #3f4248;
+  outline: 1px solid whitesmoke;
+  background-color: #3f4248;
 }
 
 #searchbar:focus::placeholder {
-    color: rgba(255, 255, 255, 0.5);
+  color: rgba(255, 255, 255, 0.5);
+}
+
+#search-btn {
+  border-radius: 5px;
+  background-color: #34363b;
+  color: rgba(255, 255, 255, 0.8);
+  position: absolute;
+  right: 0.5vw;
+  padding: 0.5vh;
+  cursor: pointer;
+}
+
+#search-btn:hover {
+  background-color: #50535a;
+  box-shadow: 1px 2px 3px 0 black;
+}
+
+#search-btn:active {
+  box-shadow: inset 1px 2px 3px 0 black;
 }
 
 /* SVGs */
 
 svg {
-    height: 3vh;
+  height: 3vh;
 }
 
 /* Liked */
 
 #liked svg:hover {
-    color: #afafaf;
-    cursor: pointer;
+  color: #afafaf;
+  cursor: pointer;
 }
 
 #liked figure:hover {
-    background-color: #797979;
+  background-color: #797979;
 }
 
 /* Sidebar */
 
 nav a:hover {
-    background-color: #36383d;
+  background-color: #36383d;
 }
 
 nav a + dialog {
-    border: none;
-    background-color: #494b52;
-    color: white;
-    font-size: 0.75rem;
-    position: absolute;
-    left: 4vw;
-    transform: translateY(-115%);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 1vh 2vw;
-    opacity: 0;
-    cursor: default;
+  border: none;
+  background-color: #494b52;
+  color: white;
+  font-size: 0.75rem;
+  position: absolute;
+  left: 4vw;
+  transform: translateY(-115%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1vh 1vw;
+  opacity: 0;
+  cursor: default;
+}
+
+#logo + dialog {
+  background-color: white;
+  color: #494b52;
+  font-weight: 500;
 }
 
 nav a:hover + dialog {
-    opacity: 1;
-    transition-delay: 1s;
+  opacity: 1;
+  transition-delay: 1s;
 }
 
 /* Product */
 
+.back-to-shop:hover {
+  text-decoration: underline;
+}
+
 figure:hover {
-    box-shadow: 0 0 6px 1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  box-shadow: 0 0 6px 1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
 }
 
 figure:hover img {
-    box-shadow: 0 0 2px black;
+  box-shadow: 0 0 2px black;
 }
 
 #heart {
-    border-radius: 5px;
-    color: red;
-    height: 5vh;
+  border-radius: 5px;
+  color: red;
+  height: 5vh;
+}
+
+#heart path {
+  stroke-width: 1.5px;
 }
 
 #heart:hover {
-    border: 1px solid red;
-    cursor: pointer;
-    padding: 1vh 1vw;
+  border: 1px solid red;
+  cursor: pointer;
+  padding: 1vh 1vw;
 }
 
 #heart:active {
-    box-shadow: inset 1px 1px 2px black;
-    fill: red;
-    outline-color: red;
+  box-shadow: inset 1px 1px 2px black;
+  fill: red;
+  outline-color: red;
 }
 
 #add-to-cart {
-    background-color: red;
-    color: white;
-    display: flex;
-    align-items: center;
-    gap: 1vh;
-    font-size: 0.8rem;
-    font-weight: 500;
-    margin: 2px;
+  background-color: red;
+  color: white;
+  display: flex;
+  align-items: center;
+  gap: 1vh;
+  font-size: 0.8rem;
+  font-weight: 500;
+  margin: 2px;
 }
 
 #add-to-cart:hover {
-    background-color: white;
-    color: red;
+  background-color: white;
+  color: red;
+}
+
+#counter svg {
+  cursor: pointer;
+}
+
+#counter svg:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+#counter::-webkit-outer-spin-button,
+#counter::-webkit-inner-spin-button {
+  margin: 0;
+  -webkit-appearance: none;
 }
 
 /* Categories */
 
 #categories a {
-    font-weight: 300;
+  font-weight: 500;
 }
 
 #categories a:hover {
-    color: #5676c9;
-    font-weight: 700;
+  color: #5676c9;
+  font-weight: 700;
 }
 
 /* Login */
 
 #switch:hover {
-    text-decoration: underline;
+  text-decoration: underline;
 }
 
 /* Table */
 
 tr {
-    border-bottom: 1px solid rgba(0, 0, 0, 0.6);
-    height: 8vh;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.6);
+  height: 8vh;
 }
 
 td {
-    text-align: left;
+  text-align: left;
 }
 
 thead td:last-child {
-    align-items: center;
+  align-items: center;
 }
 
 td:first-child {
-    max-width: 15vw;
-    padding-left: 1vw;
+  max-width: 10vw;
+  padding-left: 1vw;
 }
 
-td:not(thead td):first-child:hover {
-    text-decoration: underline;
+td:not(thead td):first-child:hover,
+.completed-order:hover {
+  text-decoration: underline;
 }
 
 td:last-child {
-    height: inherit;
-    display: flex;
-    justify-content: flex-end;
-    padding-right: 1vw;
+  height: inherit;
+  display: flex;
+  justify-content: flex-end;
+  padding-right: 1vw;
+}
+
+/* Inventory */
+
+#add-new-product {
+  background-color: green;
+  border: none;
+  color: white;
+  position: absolute;
+  top: 3vh;
+  right: 2vw;
+  display: flex;
+  align-items: center;
+  gap: 1vh;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+#refresh-orders {
+  background-color: rgba(0, 0, 0, 0.6);
+  border: none;
+  color: white;
+  position: absolute;
+  top: 3vh;
+  right: 2vw;
+  display: flex;
+  align-items: center;
+  gap: 1vh;
+  font-size: 0.8rem;
+  font-weight: 700;
 }

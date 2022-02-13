@@ -1,2 +1,2 @@
-const AppLoading = () => "Loading...";
+const AppLoading = () => 'Loading...';
 export default AppLoading;

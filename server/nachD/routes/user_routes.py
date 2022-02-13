@@ -1,5 +1,6 @@
 import datetime
 import traceback
+from cmath import log
 from inspect import trace
 
 import mongoengine
@@ -84,7 +85,7 @@ def changeUserDetails(userID, data):
 def changeUserInfo():
     userId = session.get("user")
     data = request.get_json()
-    if "user" in session and userId == data["userId"]:     
+    if userId == data["userId"]:     
         try:
             changeUserDetails(userId, data)
             return {
@@ -147,12 +148,12 @@ def addToCart():
     userID = session.get("user")
     data = request.get_json()
     try:
-        if "user" in session and session.get("user") == data["userId"]:  
+        if session.get("user") == data["userId"]:  
             addToUserCart(data["productId"], userID)
             
             return {
                 "success": True,
-                "message": "sucessfully added to cart"
+                "message": "successfully added to cart"
             }
         else:
             return {
@@ -171,7 +172,7 @@ def addToLiked():
     userID = session.get("user")
     data = request.get_json()
     try:
-        if "user" in session and session.get("user") == data["userId"]:  
+        if session.get("user") == data["userId"]:  
             if request.method == "POST":
                 isUser = addToLikedProducts(data["productId"], userID)
                 if isUser:
@@ -181,7 +182,7 @@ def addToLiked():
                             "id":str(likedProduct.id),
                             "name":likedProduct.name,
                             "price":likedProduct.price,
-                            "img":likedProduct.img
+                            "img": likedProduct.img
                         })
                     return {
                         "success": True,
@@ -201,7 +202,7 @@ def addToLiked():
                             "id":str(likedProduct.id),
                             "name":likedProduct.name,
                             "price":likedProduct.price,
-                            "img":likedProduct.img
+                            "img": likedProduct.img
                         })
                     return {
                         "success": True,
@@ -291,6 +292,9 @@ def get_user():
                             "name":"Deleted product",
                             "qty":prod_order.qty,
                             "status":prod_order.status.value,
+                            "purchaser": {
+                                "address": prod_order.purchaser.address
+                            }
                         })
                     else:
                         obj["products"].append({
@@ -304,6 +308,9 @@ def get_user():
                             "orderId": str(eachOrder.id),
                             "category":prod_order.product["category"].value,
                             "date_ordered":datetime.datetime.strftime(prod_order.date_ordered, "%d/%m/%Y"),
+                            "purchaser": {
+                                "address": prod_order.purchaser.address
+                            },
                             "user":{
                                 "userId":str(prod_order.product["user"]["id"]),
                                 "username":prod_order.product["user"]["username"]
@@ -333,13 +340,18 @@ def get_user():
                     }
                 })
             for eachCartItem in user.cart:
-                cartItem = Product.objects(id=eachCartItem["productId"]).get()
-                cart.append({
-                    "id":str(cartItem["id"]),
-                    "name":cartItem["name"],
-                    "price":cartItem["price"],
-                    "qty":eachCartItem["qty"]
-                })
+                try:
+                    cartItem = Product.objects(id=eachCartItem["productId"]).get()
+
+                    cart.append({
+                        "id":str(cartItem["id"]),
+                        "name":cartItem["name"],
+                        "price":cartItem["price"],
+                        "qty":cartItem["qty"]
+                    })
+                except:
+                    pass
+
             return {
                 "success": True,
                 "userId":str(user.id),
@@ -369,7 +381,7 @@ def get_user():
 @app.route("/api/get_user", methods=['post'])
 def login_user():
     data = request.get_json()
-    if "user" in session and session.get("user") == data["userId"]:
+    if session.get("user") == data["userId"]:
         userId = session["user"]
         user = User.objects().filter(id = userId).first()
 
@@ -502,20 +514,79 @@ def removeFromUserCart(productIdObj, UserID):
 def returnCart(user):
     cart = []
     for item in user.cart:
-        prod = Product.objects(id=item["productId"]).get()
-        cart.append({
-            "id":str(prod.id),
-            "name":prod.name,
-            "price":prod.price,
-            "qty": item["qty"]
-        })
+        try:
+            prod = Product.objects(id=item["productId"]).get()
+            cart.append({
+                "id":str(prod.id),
+                "name":prod.name,
+                "price":prod.price,
+                "qty": item["qty"]
+            })
+        except:
+            pass
     return cart
 
+@app.route('/api/topRanking',methods = ["POST"])
+def top_rankings():
+    data = request.get_json()
+    if session.get("user") == data["userId"]:
+        userId = session["user"]
+        # allRevs = []
+        prods = []
+
+        try:
+            user = User.objects(id=userId).get()
+            # first product is in top
+            for prod in user.products:
+                sales = prod.qty_sold * prod.price
+                prods.append({
+                    "prod":prod,
+                    "sales":sales
+                })
+
+            prods.sort(key=lambda x:x["sales"], reverse=True)
+            totalRevenue = 0
+            products = []
+            print(len(user.products))
+            if len(user.products) >= 3:
+                for index in range(3):
+                    theProduct = prods[index]
+                    totalRevenue += theProduct["sales"]
+                    products.append({
+                        "productName":theProduct["prod"]["name"],
+                        "productId":str(theProduct["prod"]["id"]),
+                        "revenue":theProduct["sales"]
+                    })
+            else:
+                for index in range(len(user.products)):
+                    theProduct = prods[index]
+                    totalRevenue += theProduct["sales"]
+                    products.append({
+                        "productName":theProduct["prod"]["name"],
+                        "productId":str(theProduct["prod"]["id"]),
+                        "revenue":theProduct["sales"]
+                    })
+            return {
+                "success":True,
+                "totalRevenue":totalRevenue,
+                "products":products,
+            }
+        except:
+            print(traceback.format_exc())
+            return {
+                "success":False,
+                "message":"Error occurred while retrieving sales. Please try again."
+            }
+    else:
+        return {
+            "success":False,
+            "message":"Please log in first."
+        }
 
 @app.route('/api/deleteUserCart',methods=["DELETE"])
 def delete_cart():
     data = request.get_json()
-    if "user" in session and session.get("user") == data["userId"]:
+    if session.get("user") == data["userId"]:
         userId = session["user"]
         try:
             user = User.objects(id=userId).get()
@@ -541,7 +612,7 @@ def delete_cart():
 @app.route('/api/updateUserCart', methods=["POST", "DELETE"])
 def update_cart():
     data = request.get_json()
-    if "user" in session and session.get("user") == data["userId"]:
+    if session.get("user") == data["userId"]:
         userId = session["user"]
         try:
             productIdObj = {
@@ -586,49 +657,6 @@ def update_cart():
             "success": False,
             "message": "Please log in first."
         }
-
-@app.route('/api/topRanking',methods = ["POST"])
-def top_rankings():
-    data = request.get_json()
-    if "user" in session and session.get("user") == data["userId"]:
-        userId = session["user"]
-        # allRevs = []
-        prods = []
-
-        try:
-            user = User.objects(id=userId).get()
-            # first product is in top
-            for prod in user.products:
-                sales = prod.qty_sold * prod.price
-                prods.append({
-                    "prod":prod,
-                    "sales":sales
-                })
-
-            prods.sort(key=lambda x:x["sales"], reverse=True)
-            totalRevenue = 0
-            products = []
-
-            for index in range(3):
-                theProduct = prods[index]
-                totalRevenue += theProduct["sales"]
-                products.append({
-                    "productName":theProduct["prod"]["name"],
-                    "productId":str(theProduct["prod"]["id"]),
-                    "revenue":theProduct["sales"]
-                })
-
-            return {
-                "success":True,
-                "totalRevenue":totalRevenue,
-                "products":products,
-            }
-        except:
-            print(traceback.format_exc())
-            return {
-                "success":False,
-                "message":"Error occurred while retrieving sales. Please try again."
-            }
 
 @app.route("/api/logout", methods = ["post"])
 def logout():

@@ -1,6 +1,6 @@
 import { HeartIcon, ShoppingCartIcon } from '@heroicons/react/outline';
-import { bool, func, string } from 'prop-types';
-import { useState } from 'react';
+import { EmojiSadIcon } from '@heroicons/react/solid';
+import { bool, func, number, string } from 'prop-types';
 
 const callToActionStyles = {
   position: 'absolute',
@@ -9,51 +9,72 @@ const callToActionStyles = {
   display: 'flex',
   alignItems: 'center',
   gap: '1vw'
-}
-
-const counterStyles = {
-  border: '1px solid red',
-  borderRadius: '10px',
-  display: 'flex',
-  alignItems: 'center',
-  gap: '1vw',
-  padding: '1vh 1vw'
-}
+};
 
 const disabledStyles = {
-  backgroundColor: 'gray',
-  pointerEvents: 'none'
-}
+  backgroundColor: 'rgba(0, 0, 0, 0.6)',
+  boxShadow: 'none',
+  color: 'white',
+  fontWeight: '500',
+  fontSize: '1rem',
+  cursor: 'default'
+};
 
-const ProductButtons = ({ productId, liked, toggleLiked, addToCart }) => {
-  let [ loggedIn, setLoggedIn ] = useState("userId" in sessionStorage);
-  let inCart = false;
+const ProductButtons = ({
+  productId,
+  liked,
+  toggleLiked,
+  inCart,
+  addToCart,
+  qtyInCart,
+  qtyInStock
+}) => {
+  const loggedIn = 'userId' in sessionStorage;
 
-  if (loggedIn) {   
-    const cart = JSON.parse(sessionStorage.getItem("cart"));
-    for (const { id, qty } of cart) if (productId === id) inCart = true;
-
+  if (qtyInStock === 0)
     return (
       <span style={callToActionStyles}>
-        <HeartIcon onClick={toggleLiked} id="heart" style={liked? {fill: 'red'} : {}} />
-        { inCart && <button id="add-to-cart" style={disabledStyles}>Item in cart</button> }
-        { inCart || <button id="add-to-cart" onClick={addToCart}>Add to Cart <ShoppingCartIcon /></button> }
+        <HeartIcon onClick={toggleLiked} id="heart" style={liked ? { fill: 'red' } : {}} />
+        <button id="add-to-cart" style={disabledStyles}>
+          Out of stock <EmojiSadIcon />
+        </button>
       </span>
-    )
-  }
+    );
+
+  if (loggedIn)
+    return (
+      <span style={callToActionStyles}>
+        <HeartIcon onClick={toggleLiked} id="heart" style={liked ? { fill: 'red' } : {}} />
+        {inCart && (
+          <button id="add-to-cart" style={disabledStyles}>
+            In cart &nbsp; x{qtyInCart}
+          </button>
+        )}
+        {inCart || (
+          <button id="add-to-cart" onClick={addToCart}>
+            Add to Cart <ShoppingCartIcon />
+          </button>
+        )}
+      </span>
+    );
 
   return (
     <span style={callToActionStyles}>
-      <button onClick={addToCart} style={{...addToCartStyles, ...disabledStyles}}>Add to Cart</button>
+      <button onClick={(e) => e.preventDefault()} style={disabledStyles}>
+        Add to Cart
+      </button>
     </span>
-  )
+  );
 };
 
 ProductButtons.propTypes = {
   productId: string.isRequired,
   liked: bool.isRequired,
   toggleLiked: func.isRequired,
+  inCart: bool.isRequired,
   addToCart: func.isRequired,
-}
+  qtyInCart: number.isRequired,
+  qtyInStock: number.isRequired
+};
 
 export default ProductButtons;

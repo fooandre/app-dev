@@ -1,100 +1,152 @@
-import BaseTable from "../components/BaseTable";
+import { PlusSmIcon } from '@heroicons/react/outline';
+import { useState } from 'react';
+import BaseTable from '../components/BaseTable';
+import InventoryProductAdmin from '../components/InventoryProductAdmin';
 import InventoryRow from '../components/InventoryRow';
 
 const sectionStyles = {
-  width: '91vw',
   display: 'flex',
   flexDirection: 'column',
-  gap: '2vh'
-}
+  gap: '5vh'
+};
 
-const divStyles = {
-  width: 'fit-content',
-  display: 'flex',
-  alignItems: 'center',
-  flexDirection: 'column',
-  gap: '2vh',
-  padding: '2vh 2vw',
-  marginBottom: '3vh'
-}
-
-const addNewStyles = {
-  backgroundColor: 'green',
-  border: 'none',
-  color: 'white',
+const searchbarStyles = {
+  borderRadius: '5px',
+  backgroundColor: 'rgba(0, 0, 0, 0.6)',
   position: 'absolute',
-  top: '7vh',
-  right: '5vw',
-  display: 'flex',
-  alignItems: 'center',
-  gap: '1vh',
-  fontSize: '0.8rem',
-  fontWeight: '700',
-}
+  top: '5vh',
+  left: '45vw',
+  width: '25vw',
+  color: 'whitesmoke',
+  transform: 'translate(-50%, -50%)'
+};
 
 const Inventory = () => {
-  const user = JSON.parse(sessionStorage.getItem('user'));
-  const products = JSON.parse(sessionStorage.getItem('products'))
-  
-  const addNewProduct = () => {};
-  
-  if ( products.length === 0) return (
-    <section style={sectionStyles}>
-      <button onClick={addNewProduct} style={addNewStyles}>Add new product<PlusSmIcon style={{height: '3vh'}} /></button>
-      <h3 style={{color: 'rgb(63, 66, 72)'}}>Items in cart&#58;</h3>
-      <span>Your cart is empty, add some items to view them!</span>
-    </section>
-)
-  
+  const user = JSON.parse(sessionStorage.getItem('userId'));
+  let [products, setProducts] = useState(JSON.parse(sessionStorage.getItem('products')));
+  let [showAdmin, toggleAdmin] = useState(false);
+  let [action, setAction] = useState(null);
+  let [editId, setEditId] = useState(null);
+
+  const search = (value) => {
+    value = value.trim();
+    if (value === '') return setProducts(JSON.parse(sessionStorage.getItem('products')));
+    setProducts(
+      products.filter(
+        ({ name, desc, category }) =>
+          name.includes(value) || desc.includes(value) || category.includes(value)
+      )
+    );
+  };
+
+  const addNewProduct = () => {
+    toggleAdmin(!showAdmin);
+    setAction('Add');
+  };
+
+  const editProduct = (id) => {
+    toggleAdmin(!showAdmin);
+    setEditIt(id);
+    setAction('Edit');
+  };
+
+  const deleteProduct = async (id) => {
+    if (!confirm('Are you sure you want to delete this item? (this action is irreversible!)'))
+      return;
+
+    const orders = JSON.parse(sessionStorage.getItem('orders'));
+    for (const { products } of orders)
+      for (const { id: productId } of products)
+        if (id === productId) return alert('You cannot delete this item, it is in pending orders.');
+
+    try {
+      const res = await fetch(`/api/product/admin/${id}`, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId: user })
+      });
+
+      const { success, products, message } = await res.json();
+
+      if (success) {
+        setProducts(products);
+        return sessionStorage.setItem('products', JSON.stringify(products));
+      }
+
+      alert(message);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const updateQty = async (id, qty) => {
+    if (qty < 0) return alert('Quantity cannot be a negative number.');
+
+    try {
+      const res = await fetch('api/product', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId: user,
+          products: [
+            {
+              id: id,
+              qty: qty
+            }
+          ]
+        })
+      });
+
+      const { success, products, message } = await res.json();
+
+      if (success) {
+        setProducts(products);
+        return sessionStorage.setItem('products', JSON.stringify(products));
+      }
+
+      alert(message);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   let content = [];
-  
-  for (const product of products) {
-    // FIXME: update product qty
-    const updateQty = async products => {
-      try {
-          const res = await fetch("api/product", {
-              method: "POST",
-              headers: {'Content-Type': 'application/json'},
-              body: JSON.stringify({
-                  "userId": user,
-                  "products": products
-              })
-          })
 
-          // TODO: get products after update from res
-          // const { products } = await res.json();
-          // sessionStorage.setItem('products', JSON.stringify(products));
-          window.location.reload();
-      } catch (err) { console.error(err) };
-    }
+  for (const product of products)
+    content.push(
+      <InventoryRow
+        key={product.id}
+        product={product}
+        updateQty={updateQty}
+        deleteProduct={deleteProduct}
+        editProduct={editProduct}
+      />
+    );
 
-    // FIXME: delete product
-    const deleteProduct = async id => {
-        if (!confirm("Are you sure you want to delete this item? (this action is irreversible!)")) return;
-
-        try {  
-            const res = await fetch(`/api/product/admin/${id}`, {
-                method: 'DELETE',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ "userId": user })
-            })
-
-            // TODO: get products after deleting from res
-            // const { products } = await res.json();
-            // sessionStorage.setItem('products', JSON.stringify(products));
-            window.location.reload();
-        } catch (err) { console.error(err) };
-    }
-    
-    content.push(<InventoryRow key={product.id} product={product} updateQty={updateQty} deleteProduct={deleteProduct} />);
-  }
-  
   return (
     <section style={sectionStyles}>
-        <h3 style={{color: 'rgb(63, 66, 72)'}}>Your products&#58;</h3>
-        <BaseTable columns={["Product name", "Price", "Quantity", ""]}>{ content }</BaseTable>
+      <h3 style={{ color: 'rgb(63, 66, 72)' }}>Your products&#58;</h3>
+      <input
+        onChange={({ target: { value } }) => search(value)}
+        style={searchbarStyles}
+        id="searchbar"
+        type="text"
+        placeholder="Search from your products"
+      />
+      <button id="add-new-product" onClick={addNewProduct}>
+        Add new product
+        <PlusSmIcon style={{ height: '3vh' }} />
+      </button>
+      {showAdmin && <InventoryProductAdmin action={action} close={() => toggleAdmin(false)} />}
+      {content.length === 0 && products.length !== 0 && <span>No results returned</span>}
+      {content.length !== 0 && products.length === 0 && (
+        <span>You are not a merchant yet, become one by simply adding a product!</span>
+      )}
+      {products.length > 0 && (
+        <BaseTable columns={['Product name', 'Price', 'Quantity', '']}>{content}</BaseTable>
+      )}
     </section>
-)
+  );
 };
 
 export default Inventory;

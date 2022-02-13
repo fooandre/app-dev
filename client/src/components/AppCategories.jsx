@@ -1,26 +1,38 @@
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 const categoriesStyles = {
-    height: '10vh',
-    width: 'fit-content',
-    display: 'flex',
-    alignItems: 'center',
-    gap: '3vw',
-    paddingLeft: '1vw',
-    marginLeft: '6px'
-}
-
+  height: '10vh',
+  width: 'fit-content',
+  display: 'flex',
+  alignItems: 'center',
+  gap: '3vw',
+  paddingLeft: '1vw',
+  marginLeft: '6px'
+};
 
 const AppCategories = () => {
-    const categories = ["Home & Living", "Fashion & Accessories", "Electronics", "Toys & Games"];
+  const categories = ['Home & Living', 'Fashion & Accessories', 'Electronics', 'Toys & Games'];
 
-    let content = [];
-    for (const category of categories) content.push(<Link key={category} to="/search">{ category }</Link>);
+  const navigate = useNavigate();
 
-    return <div id="categories" style={categoriesStyles}>
-        <h3>Categories</h3>
-        { content }
-        </div>
-}
+  let content = [];
+  for (const category of categories)
+    content.push(
+      <a
+        key={category}
+        style={{ cursor: 'pointer' }}
+        onClick={() => navigate('/search', { state: { query: category } })}
+      >
+        {category}
+      </a>
+    );
 
-export default AppCategories
+  return (
+    <div id="categories" style={categoriesStyles}>
+      <h3>Categories</h3>
+      {content}
+    </div>
+  );
+};
+
+export default AppCategories;

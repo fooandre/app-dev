@@ -1,23 +1,17 @@
 @api = http://localhost:5000/api
-@userId = "61e932fa30db6b1dfdc953d5"
+@userId = "61ebbd261498e82cb276bb96"
 
-# POST {{api}}/login
-# content-type: application/json
-
-# {
-#     "username": "new_seller2",
-#     "password": "123456"
-# }
-
-POST {{api}}/product
+POST {{api}}/login
 content-type: application/json
 
 {
-    "userId": {{userId}},
-    "products": [
-        {        
-            "id": "61e9367e30db6b1dfdc953db",
-            "qty": 1
-        }
-    ]
+    "username": "new_seller2",
+    "password": "123456"
 }
+
+# POST {{api}}/order/all
+# content-type: application/json
+
+# {
+#     "userId": {{userId}}
+# }
