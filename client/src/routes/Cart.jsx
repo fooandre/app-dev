@@ -169,7 +169,7 @@ const Cart = () => {
       const { success, purchases, message } = await res.json();
 
       if (success) {
-        setCart(cart);
+        setCart([]);
         sessionStorage.setItem('cart', JSON.stringify([]));
         sessionStorage.setItem('purchases', JSON.stringify(purchases));
         return;

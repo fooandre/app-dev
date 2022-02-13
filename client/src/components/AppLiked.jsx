@@ -35,7 +35,8 @@ const spanStyles = {
 };
 
 const svgStyles = {
-  height: '3vh'
+  height: '3vh',
+  cursor: 'pointer'
 };
 
 const backgroundStyles = {

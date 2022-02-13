@@ -1,3 +1,5 @@
+import { RefreshIcon } from '@heroicons/react/outline';
+import { useState } from 'react';
 import BaseTable from '../components/BaseTable';
 import PurchasesRow from '../components/PurchasesRow';
 
@@ -8,7 +10,28 @@ const sectionStyles = {
 
 const Purchases = () => {
   const address = JSON.parse(sessionStorage.getItem('address'));
-  const purchases = JSON.parse(sessionStorage.getItem('purchases'));
+  let [purchases, setPurchases] = useState(JSON.parse(sessionStorage.getItem('purchases')));
+
+  const fetchPurchases = async () => {
+    try {
+      const res = await fetch('api/purchase/all', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId: JSON.parse(sessionStorage.getItem('userId')) })
+      });
+
+      let { success, purchases, message } = await res.json();
+
+      if (success) {
+        setPurchases(purchases);
+        return sessionStorage.setItem('purchases', JSON.stringify(purchases));
+      }
+
+      alert(message);
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
   let content = [];
 
@@ -22,8 +45,7 @@ const Purchases = () => {
         <BaseTable
           key={orderId ?? content.length}
           label={`Order id: ${orderId}`}
-          columns={['Product name', 'Price', 'Quantity', 'Purchase date', 'Order status']}
-        >
+          columns={['Product name', 'Price', 'Quantity', 'Purchase date', 'Order status']}>
           {body}
         </BaseTable>
       );
@@ -35,7 +57,10 @@ const Purchases = () => {
         <h3 style={{ color: 'rgb(63, 66, 72)' }}>Your recent purchases&#58;</h3>
         <h4 style={{ fontWeight: '500' }}>Shipping address: {address}</h4>
       </span>
-
+      <button id="refresh-orders" onClick={fetchPurchases}>
+        Refresh page
+        <RefreshIcon style={{ height: '3vh' }} />
+      </button>
       {purchases.length === 0 && (
         <span>You have no recent purchases, buy some items to see them!</span>
       )}

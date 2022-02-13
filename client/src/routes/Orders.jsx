@@ -1,5 +1,6 @@
 import { RefreshIcon } from '@heroicons/react/outline';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import BaseTable from '../components/BaseTable';
 import OrdersRow from '../components/OrdersRow';
 
@@ -9,6 +10,13 @@ const sectionStyles = {
 };
 
 const Orders = () => {
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const merchant = JSON.parse(sessionStorage.getItem('products')).length > 0;
+    if (!merchant) return navigate('/Inventory');
+  });
+
   let [orders, setOrders] = useState(JSON.parse(sessionStorage.getItem('orders')));
 
   const fetchOrders = async () => {
@@ -26,8 +34,8 @@ const Orders = () => {
           for (const { status } of order)
             if (status === 'Completed')
               orders = orders.filter((order) => order.orderId !== orderId);
-        sessionStorage.setItem('orders', JSON.stringify(orders));
-        return window.location.reload();
+        setOrders(orders);
+        return sessionStorage.setItem('orders', JSON.stringify(orders));
       }
 
       alert(message);
@@ -63,8 +71,8 @@ const Orders = () => {
           for (const { status } of order)
             if (status === 'Completed')
               orders = orders.filter((order) => order.orderId !== orderId);
-        sessionStorage.setItem('orders', JSON.stringify(orders));
-        return window.location.reload();
+        setOrders(orders);
+        return sessionStorage.setItem('orders', JSON.stringify(orders));
       }
 
       alert(message);
@@ -99,24 +107,26 @@ const Orders = () => {
             'Purchase date',
             'Shipping address',
             'Order status'
-          ]}
-        >
+          ]}>
           {body}
         </BaseTable>
       );
   }
 
-  return (
-    <section style={{ gap: '5vh', ...sectionStyles }}>
-      <h3 style={{ color: 'rgb(63, 66, 72)' }}>Pending orders&#58;</h3>
-      <button id="refresh-orders" onClick={fetchOrders}>
-        Refresh page
-        <RefreshIcon style={{ height: '3vh' }} />
-      </button>
-      {orders.length === 0 && <span>You have no orders to manage, start marketing now!</span>}
-      {orders.length > 0 && <>{content}</>}
-    </section>
-  );
+  if (orders)
+    return (
+      <section style={{ gap: '5vh', ...sectionStyles }}>
+        <h3 style={{ color: 'rgb(63, 66, 72)' }}>Pending orders&#58;</h3>
+        <button id="refresh-orders" onClick={fetchOrders}>
+          Refresh page
+          <RefreshIcon style={{ height: '3vh' }} />
+        </button>
+        {orders.length === 0 && <span>You have no orders to manage, start marketing now!</span>}
+        {orders.length > 0 && <>{content}</>}
+      </section>
+    );
+
+  return 'Fetching orders...';
 };
 
 export default Orders;

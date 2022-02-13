@@ -1,7 +1,6 @@
 import { XCircleIcon } from '@heroicons/react/outline';
 import { func, string } from 'prop-types';
 import { useEffect, useState } from 'react';
-import BaseInput from './BaseInput';
 
 const popupStyles = {
   backgroundColor: 'rgb(255, 255, 255)',
@@ -33,7 +32,8 @@ const spanStyles = {
 };
 
 const svgStyles = {
-  height: '3vh'
+  height: '3vh',
+  cursor: 'pointer'
 };
 
 const formStyles = {
@@ -83,84 +83,56 @@ const backgroundStyles = {
 };
 
 const InventoryProductAdmin = ({ editId, action, close }) => {
+  let [name, setName] = useState('');
   let [category, setCategory] = useState('default');
-  let [image, setImage] = useState(null);
+  let [desc, setDesc] = useState('');
+  let [price, setPrice] = useState(0);
+  let [qty, setQty] = useState(0);
 
-  useEffect(() => {
-    if (action === 'Edit')
-      try {
-        const res = fetch('api/');
-      } catch (err) {
-        console.error(err);
-      }
-  }, []);
+  useEffect(async () => {
+    setName('');
+    setCategory('default');
+    setDesc('');
+    setPrice(0);
+    setQty(0);
 
-  const handleFile = (event) => setImage(event.target.files[0]);
+    if (action === 'Edit') {
+      const products = JSON.parse(sessionStorage.getItem('products'));
+      const toEdit = products.filter(({ id }) => id === editId)[0];
+
+      setName(toEdit.name);
+      setCategory(toEdit.category);
+      setDesc(toEdit.desc);
+      setPrice(toEdit.price);
+      setQty(toEdit.qty);
+    }
+  }, [action]);
 
   const addNewProduct = async () => {
     try {
-      const picture = new FormData();
-      picture.append('picture', image, image.name);
+      const form = document.getElementById('form');
 
       const res = await fetch('api/product/admin', {
         method: 'POST',
-        headers: { 'Content-Type': 'multipart/form-data' },
-        body: JSON.stringify({
-          userId: JSON.parse(sessionStorage.getItem('userId')),
-          name: document.getElementById('name').value,
-          price: document.getElementById('price').value,
-          desc: document.getElementById('desc').value,
-          qty: document.getElementById('qty').value,
-          category: category,
-          picture: picture
-        })
+        body: new FormData(form)
       });
-
-      const { success, products, message } = await res.json();
-
-      if (success) {
-        sessionStorage.setItem('products', JSON.stringify(products));
-        return close();
-        // return window.location.reload();
-      }
-
-      alert(message);
     } catch (err) {
       console.error(err);
     }
   };
 
-  // const editProduct = async () => {
-  //   try {
-  //     const picture = new FormData();
-  //     picture.append('picture', image, image.name);
+  const editProduct = async () => {
+    try {
+      const form = document.getElementById('form');
 
-  //     const res = await fetch('api/product/admin', {
-  //       method: 'PATCH',
-  //       headers: { 'Content-Type': 'application/json' },
-  //       body: JSON.stringify({
-  //         userId: JSON.parse(sessionStorage.getItem('userId')),
-  //         name: document.getElementById('name').value,
-  //         price: document.getElementById('price').value,
-  //         desc: document.getElementById('desc').value,
-  //         qty: document.getElementById('qty').value,
-  //         category: category,
-  //         picture: picture
-  //       })
-  //     });
-
-  //     const { success, products, message } = await res.json();
-
-  //     if (success) {
-  //       sessionStorage.setItem('products', JSON.stringify(products));
-  //       return window.location.reload();
-  //     }
-
-  //     alert(message);
-  //   } catch (err) {
-  //     console.error(err);
-  //   }
-  // };
+      const res = await fetch('api/product/admin', {
+        method: 'PATCH',
+        body: new FormData(form)
+      });
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
   return (
     <>
@@ -170,53 +142,95 @@ const InventoryProductAdmin = ({ editId, action, close }) => {
           <XCircleIcon onClick={close} style={svgStyles} />
         </span>
 
-        {/* <form
-          style={formStyles}
-          encType="multipart/form-data"
-          action="api/product/admin"
-          method="post"
-          target="_self"> */}
-        <input
-          type="text"
-          value={JSON.parse(sessionStorage.getItem('userId'))}
-          style={{ display: 'none' }}
-          readOnly
-        />
-        <BaseInput field="name" />
-        <label style={labelStyles}>
-          category
-          <select
-            onChange={(event) => setCategory(event.target.value)}
-            value={category}
-            style={selectStyles}
-            required={true}>
-            <option value="default" defaultValue disabled>
-              Select category
-            </option>
-            <option value="Fashion & Accessories">Fashion & accessories</option>
-            <option value="Electronics">Electronics</option>
-            <option value="Toys & Games">Toys & games</option>
-            <option value="Home & Living">Home & living</option>
-          </select>
-        </label>
-        <BaseInput field="desc" />
-        <BaseInput type="number" field="price" />
-        <BaseInput type="number" field="qty" />
-        <label style={labelStyles}>
-          picture
+        <form id="form" style={formStyles}>
           <input
-            onChange={handleFile}
-            type="file"
-            id="picture"
-            name="picture"
-            style={{ cursor: 'pointer', ...inputStyles }}
-            required={true}
+            type="hidden"
+            name="userId"
+            value={JSON.parse(sessionStorage.getItem('userId'))}
+            readOnly
           />
-        </label>
-        <button onClick={addNewProduct} type="submit">
-          Submit form
-        </button>
-        {/* </form> */}
+          <input type="hidden" name="productId" value={editId} readOnly />
+          <label style={labelStyles}>
+            name
+            <input
+              type="text"
+              id="name"
+              name="name"
+              onChange={(event) => setName(event.target.value)}
+              value={name}
+              style={inputStyles}
+              autoComplete="off"
+              required={true}
+            />
+          </label>
+          <label style={labelStyles}>
+            category
+            <select
+              name="category"
+              onChange={(event) => setCategory(event.target.value)}
+              value={category}
+              style={selectStyles}
+              required={true}>
+              <option value="default" defaultValue disabled>
+                Select category
+              </option>
+              <option value="Fashion & Accessories">Fashion & accessories</option>
+              <option value="Electronics">Electronics</option>
+              <option value="Toys & Games">Toys & games</option>
+              <option value="Home & Living">Home & living</option>
+            </select>
+          </label>
+          <label style={labelStyles}>
+            desc
+            <input
+              type="text"
+              id="desc"
+              name="desc"
+              onChange={(event) => setDesc(event.target.value)}
+              value={desc}
+              style={inputStyles}
+              autoComplete="off"
+              required={true}
+            />
+          </label>
+          <label style={labelStyles}>
+            price
+            <input
+              type="number"
+              id="price"
+              name="price"
+              onChange={(event) => setPrice(event.target.value)}
+              value={price}
+              style={inputStyles}
+              autoComplete="off"
+              required={true}
+            />
+          </label>
+          <label style={labelStyles}>
+            quantity
+            <input
+              type="number"
+              id="qty"
+              name="qty"
+              onChange={(event) => setQty(event.target.value)}
+              value={qty}
+              style={inputStyles}
+              autoComplete="off"
+              required={true}
+            />
+          </label>
+          <label style={labelStyles}>
+            picture
+            <input
+              type="file"
+              id="picture"
+              name="picture"
+              style={{ cursor: 'pointer', ...inputStyles }}
+              required={true}
+            />
+          </label>
+          <button onClick={action === 'Add' ? addNewProduct : editProduct}>Submit form</button>
+        </form>
       </dialog>
 
       <div onClick={close} style={backgroundStyles} />

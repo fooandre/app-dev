@@ -140,7 +140,6 @@ svg {
 
 #liked svg:hover {
   color: #afafaf;
-  cursor: pointer;
 }
 
 #liked figure:hover {

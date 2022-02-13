@@ -17,17 +17,6 @@ const InventoryRow = ({
 }) => {
   let [update, setUpdate] = useState([]);
 
-  const handleEdit = async () => {
-    try {
-      let res = await fetch(`http://127.0.0.1:5000/api/product/${id}`);
-      const { product } = await res.json();
-      sessionStorage.setItem('editProduct', JSON.stringify(product));
-      editProduct(id);
-    } catch (err) {
-      console.error(err);
-    }
-  };
-
   return (
     <tr>
       <td style={{ paddingLeft: '1vw', cursor: 'pointer' }}>
@@ -39,7 +28,10 @@ const InventoryRow = ({
         <MinusCircleIcon style={buttonStyles} onClick={() => updateQty(id, qty - 1)} />
         <PlusCircleIcon style={buttonStyles} onClick={() => updateQty(id, qty + 1)} />
         <BanIcon style={{ color: 'red', ...buttonStyles }} onClick={() => deleteProduct(id)} />
-        <PencilAltIcon style={{ ...buttonStyles, marginLeft: '1vw' }} onClick={handleEdit} />
+        <PencilAltIcon
+          style={{ ...buttonStyles, marginLeft: '1vw' }}
+          onClick={() => editProduct(id)}
+        />
       </td>
     </tr>
   );

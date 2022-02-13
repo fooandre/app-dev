@@ -1,6 +1,7 @@
 import 'chart.js/auto';
 import { useEffect, useState } from 'react';
 import { Bar } from 'react-chartjs-2';
+import { useNavigate } from 'react-router-dom';
 
 const sectionStyles = {
   display: 'flex',
@@ -8,6 +9,13 @@ const sectionStyles = {
 };
 
 const Analytics = () => {
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const merchant = JSON.parse(sessionStorage.getItem('products')).length > 0;
+    if (!merchant) return navigate('/Inventory');
+  }, []);
+
   let [totalRevenue, setRevenue] = useState(0);
   let [labels, setLabels] = useState([]);
   let [data, setData] = useState([]);
@@ -64,7 +72,7 @@ const Analytics = () => {
             },
             subtitle: {
               display: true,
-              text: `Total revenue earned from top selling products: $${totalRevenue.toFixed(2)}`,
+              text: `Total revenue earned: $${totalRevenue.toFixed(2)}`,
               font: {
                 size: 16
               }

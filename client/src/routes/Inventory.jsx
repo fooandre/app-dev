@@ -1,5 +1,5 @@
 import { PlusSmIcon } from '@heroicons/react/outline';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import BaseTable from '../components/BaseTable';
 import InventoryProductAdmin from '../components/InventoryProductAdmin';
 import InventoryRow from '../components/InventoryRow';
@@ -28,6 +28,25 @@ const Inventory = () => {
   let [action, setAction] = useState(null);
   let [editId, setEditId] = useState(null);
 
+  useEffect(async () => {
+    if (showAdmin) return;
+
+    try {
+      const res = await fetch('api/allProducts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId: user })
+      });
+
+      const { success, products } = await res.json();
+
+      if (success) {
+        sessionStorage.setItem('products', JSON.stringify(products));
+        return setProducts(products);
+      }
+    } catch (error) {}
+  }, [showAdmin]);
+
   const search = (value) => {
     value = value.trim();
     if (value === '') return setProducts(JSON.parse(sessionStorage.getItem('products')));
@@ -46,7 +65,7 @@ const Inventory = () => {
 
   const editProduct = (id) => {
     toggleAdmin(!showAdmin);
-    setEditIt(id);
+    setEditId(id);
     setAction('Edit');
   };
 
@@ -137,9 +156,11 @@ const Inventory = () => {
         Add new product
         <PlusSmIcon style={{ height: '3vh' }} />
       </button>
-      {showAdmin && <InventoryProductAdmin action={action} close={() => toggleAdmin(false)} />}
+      {showAdmin && (
+        <InventoryProductAdmin editId={editId} action={action} close={() => toggleAdmin(false)} />
+      )}
       {content.length === 0 && products.length !== 0 && <span>No results returned</span>}
-      {content.length !== 0 && products.length === 0 && (
+      {products.length === 0 && (
         <span>You are not a merchant yet, become one by simply adding a product!</span>
       )}
       {products.length > 0 && (
