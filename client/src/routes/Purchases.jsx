@@ -51,6 +51,24 @@ const Purchases = () => {
       );
   }
 
+  if (purchases)
+    return (
+      <section style={{ gap: '5vh', ...sectionStyles }}>
+        <span>
+          <h3 style={{ color: 'rgb(63, 66, 72)' }}>Your recent purchases&#58;</h3>
+          <h4 style={{ fontWeight: '500' }}>Shipping address: {address}</h4>
+        </span>
+        <button id="refresh-orders" onClick={fetchPurchases}>
+          Refresh page
+          <RefreshIcon style={{ height: '3vh' }} />
+        </button>
+        {purchases.length === 0 && (
+          <span>You have no recent purchases, buy some items to see them!</span>
+        )}
+        {purchases.length > 0 && <>{content}</>}
+      </section>
+    );
+
   return (
     <section style={{ gap: '5vh', ...sectionStyles }}>
       <span>
@@ -61,10 +79,7 @@ const Purchases = () => {
         Refresh page
         <RefreshIcon style={{ height: '3vh' }} />
       </button>
-      {purchases.length === 0 && (
-        <span>You have no recent purchases, buy some items to see them!</span>
-      )}
-      {purchases.length > 0 && <>{content}</>}
+      "Fetching purchases.."
     </section>
   );
 };

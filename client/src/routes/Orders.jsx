@@ -126,7 +126,16 @@ const Orders = () => {
       </section>
     );
 
-  return 'Fetching orders...';
+  return (
+    <section style={{ gap: '5vh', ...sectionStyles }}>
+      <h3 style={{ color: 'rgb(63, 66, 72)' }}>Pending orders&#58;</h3>
+      <button id="refresh-orders" onClick={fetchOrders}>
+        Refresh page
+        <RefreshIcon style={{ height: '3vh' }} />
+      </button>
+      "Fetching orders..."
+    </section>
+  );
 };
 
 export default Orders;

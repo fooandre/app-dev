@@ -139,6 +139,7 @@ const Product = () => {
 
   const toggleLiked = async () => {
     try {
+      setLiked(!liked);
       const method = liked ? 'PATCH' : 'POST';
 
       const res = await fetch('/api/likedProduct', {
@@ -152,16 +153,9 @@ const Product = () => {
 
       const { success, message, likedProducts } = await res.json();
 
-      console.log(success);
+      if (success) return sessionStorage.setItem('likedProducts', JSON.stringify(likedProducts));
 
-      if (success) {
-        setLiked(!liked);
-        sessionStorage.setItem('likedProducts', JSON.stringify(likedProducts));
-        return method === 'PATCH'
-          ? alert('Item removed from favorites')
-          : alert('Item added to favorites');
-      }
-
+      setLiked(!liked);
       alert(message);
     } catch (err) {
       console.error(err);
@@ -179,6 +173,9 @@ const Product = () => {
 
     const qty = parseInt(p);
 
+    setInCart(true);
+    setQtyInCart(qty);
+
     try {
       const res = await fetch('/api/updateUserCart', {
         method: 'POST',
@@ -193,11 +190,12 @@ const Product = () => {
       const { success, cart, message } = await res.json();
 
       if (success) {
-        setInCart(true);
-        setQtyInCart(qty);
-        return sessionStorage.setItem('cart', JSON.stringify(cart));
+        sessionStorage.setItem('cart', JSON.stringify(cart));
+        return alert('Item successfully added to cart');
       }
 
+      setInCart(false);
+      setQtyInCart(0);
       alert(message);
     } catch (err) {
       console.error(err);

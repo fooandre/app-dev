@@ -99,7 +99,7 @@ const Inventory = () => {
   };
 
   const updateQty = async (id, qty) => {
-    if (qty < 0) return alert('Quantity cannot be a negative number.');
+    if (qty < 0) return alert('This product is out of stock, you can only increase its quantity.');
 
     try {
       const res = await fetch('api/product', {

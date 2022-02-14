@@ -74,7 +74,9 @@ const AppLiked = ({ close }) => {
 
           <div>
             {content.length == 0 ? (
-              <span>No products to display, like some products to get started!</span>
+              <span style={spanStyles}>
+                No products to display, like some products to get started!
+              </span>
             ) : (
               <BaseGrid rowLength={3}>{content}</BaseGrid>
             )}
