@@ -253,8 +253,8 @@ def update_products_qty():
         }
 
 
-@app.route('/api/product/admin', methods=["Post", "Patch"])
-def product_route():
+@app.route('/api/product/admin', methods=["Post"])
+def add_product_route():
     try:
         userId = session.get("user")
 
@@ -286,9 +286,43 @@ def product_route():
                 "success": True,
                 "products": products
             }
+    except IncorrectPicFormat as e:
+        return {
+            "success":False,
+            "message":str(e)
+        }
+    except mongoengine.errors.ValidationError:
+        print(traceback.format_exc())
+        return{
+            "success": False,
+            "message": "Please only use Fashion & Accessories, Electronics, Toys & Games, Home & Living for category."
+        }
+    except (WrongOwner, NotMerchant) as e:
+        return {
+            "success": False,
+            "message": str(e)
+        }
+    except Exception as e:
+        print(e)
+        print(traceback.format_exc())
+        return{
+            "success": False,
+            "message": "Error while performing the action. Try again."
+        }
 
+@app.route('/api/product/admin/edit', methods=["Patch"])
+def edit_product_route():
+    try:
+        userId = session.get("user")
+
+        if userId != request.form.to_dict()["userId"]:
+            # Not logged in
+            return {
+                "success": False,
+                "message": "Please login first."
+            }
         # Update the products with product id
-        elif request.method == "PATCH":
+        if request.method == "PATCH":
 
             user = update_product(request, userId)
             products = []
@@ -331,7 +365,6 @@ def product_route():
             "success": False,
             "message": "Error while performing the action. Try again."
         }
-
 
 @app.route('/api/product/admin/<product_id>', methods=["DELETE"])
 def product_delete_route(product_id):

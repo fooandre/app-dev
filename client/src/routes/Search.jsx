@@ -19,12 +19,15 @@ const Search = () => {
 
   useEffect(async () => {
     try {
+      console.log(query);
       const res = await fetch('/api/product/all');
       const { products } = await res.json();
       setProducts(
         products.filter(
           ({ name, desc, category }) =>
-            name.includes(query) || desc.includes(query) || category.includes(query)
+            name.toLowerCase().includes(query) ||
+            desc.toLowerCase().includes(query) ||
+            category.toLowerCase().includes(query)
         )
       );
     } catch (err) {

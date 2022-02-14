@@ -48,12 +48,14 @@ const Inventory = () => {
   }, [showAdmin]);
 
   const search = (value) => {
-    value = value.trim();
+    value = value.trim().toLowerCase();
     if (value === '') return setProducts(JSON.parse(sessionStorage.getItem('products')));
     setProducts(
       products.filter(
         ({ name, desc, category }) =>
-          name.includes(value) || desc.includes(value) || category.includes(value)
+          name.toLowerCase().includes(value) ||
+          desc.toLowerCase().includes(value) ||
+          category.toLowerCase().includes(value)
       )
     );
   };
@@ -159,12 +161,12 @@ const Inventory = () => {
       {showAdmin && (
         <InventoryProductAdmin editId={editId} action={action} close={() => toggleAdmin(false)} />
       )}
-      {content.length === 0 && products.length !== 0 && <span>No results returned</span>}
-      {products.length === 0 && (
-        <span>You are not a merchant yet, become one by simply adding a product!</span>
-      )}
-      {products.length > 0 && (
+      {products.length > 0 ? (
         <BaseTable columns={['Product name', 'Price', 'Quantity', '']}>{content}</BaseTable>
+      ) : JSON.parse(sessionStorage.getItem('products')).length === 0 ? (
+        <span>You are not a merchant yet, become one by simply adding a product!</span>
+      ) : (
+        <span>No results returned</span>
       )}
     </section>
   );

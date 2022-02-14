@@ -47,8 +47,8 @@ const AppHeader = () => {
     pathname !== '/Orders' && pathname !== '/Analytics' && pathname !== '/Inventory';
 
   const search = () => {
-    if (query === null || query.trim() === '')
-      return alert('Search query cannot be an empty string.');
+    query = query.trim().toLowerCase();
+    if (query === null) return alert('Search query cannot be an empty string.');
     navigate('/search', { state: { query: query } });
   };
 

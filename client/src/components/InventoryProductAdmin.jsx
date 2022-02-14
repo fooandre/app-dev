@@ -125,7 +125,7 @@ const InventoryProductAdmin = ({ editId, action, close }) => {
     try {
       const form = document.getElementById('form');
 
-      const res = await fetch('api/product/admin', {
+      const res = await fetch('api/product/admin/edit', {
         method: 'PATCH',
         body: new FormData(form)
       });
@@ -229,7 +229,7 @@ const InventoryProductAdmin = ({ editId, action, close }) => {
               required={true}
             />
           </label>
-          <button onClick={action === 'Add' ? addNewProduct : editProduct}>Submit form</button>
+          <button onClick={action === 'Add' ? addNewProduct : editProduct}>Submit</button>
         </form>
       </dialog>
 
