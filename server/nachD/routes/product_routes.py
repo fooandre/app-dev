@@ -258,10 +258,7 @@ def product_route():
     try:
         userId = session.get("user")
 
-        # data = request.get_json()
-        print(request.form.to_dict())
-        data = request.form.to_dict()
-        if userId != data["userId"]:
+        if userId != request.form.to_dict()["userId"]:
             # Not logged in
             return {
                 "success": False,
